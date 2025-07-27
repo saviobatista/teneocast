@@ -129,7 +129,7 @@ jobs:
       working-directory: apps/player
 
     - name: Upload Windows package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: teneocast-player-windows
         path: apps/player/build/windows/runner/Release/
@@ -176,7 +176,7 @@ jobs:
       working-directory: apps/player
 
     - name: Upload Android artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: teneocast-player-android
         path: |
