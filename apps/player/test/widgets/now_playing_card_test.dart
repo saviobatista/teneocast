@@ -6,7 +6,7 @@ void main() {
   group('NowPlayingCard Widget Tests', () {
     testWidgets('should display "Now Playing" title', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: NowPlayingCard(isPlaying: false),
           ),
@@ -18,7 +18,7 @@ void main() {
 
     testWidgets('should display "Ready to Play" when not playing', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: NowPlayingCard(isPlaying: false),
           ),
@@ -31,7 +31,7 @@ void main() {
 
     testWidgets('should display track info when playing', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: NowPlayingCard(isPlaying: true),
           ),
@@ -45,7 +45,7 @@ void main() {
 
     testWidgets('should have proper card styling', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: NowPlayingCard(isPlaying: false),
           ),
@@ -58,7 +58,7 @@ void main() {
 
     testWidgets('should have proper padding', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: NowPlayingCard(isPlaying: false),
           ),

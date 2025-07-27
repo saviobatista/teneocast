@@ -6,7 +6,7 @@ void main() {
   group('PlayHistory Widget Tests', () {
     testWidgets('should display "Recently Played" title', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: PlayHistory(),
           ),
@@ -18,7 +18,7 @@ void main() {
 
     testWidgets('should display history items', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: PlayHistory(),
           ),
@@ -34,7 +34,7 @@ void main() {
 
     testWidgets('should display time information', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: PlayHistory(),
           ),
@@ -50,7 +50,7 @@ void main() {
 
     testWidgets('should display play icons', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: PlayHistory(),
           ),
@@ -63,7 +63,7 @@ void main() {
 
     testWidgets('should have proper card styling', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: PlayHistory(),
           ),
@@ -76,7 +76,7 @@ void main() {
 
     testWidgets('should have proper padding', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: PlayHistory(),
           ),

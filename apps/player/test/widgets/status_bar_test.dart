@@ -6,7 +6,7 @@ void main() {
   group('StatusBar Widget Tests', () {
     testWidgets('should display platform name', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: StatusBar(
               isOnline: true,
@@ -32,7 +32,7 @@ void main() {
 
     testWidgets('should display all status indicators', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: StatusBar(
               isOnline: true,
@@ -53,7 +53,7 @@ void main() {
 
     testWidgets('should show green indicators when status is active', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: StatusBar(
               isOnline: true,
@@ -76,7 +76,7 @@ void main() {
 
     testWidgets('should show grey indicators when status is inactive', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: StatusBar(
               isOnline: false,
@@ -99,7 +99,7 @@ void main() {
 
     testWidgets('should have proper styling', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: StatusBar(
               isOnline: true,

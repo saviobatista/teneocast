@@ -17,10 +17,10 @@ class PlayerHomePage extends StatefulWidget {
 class _PlayerHomePageState extends State<PlayerHomePage>
     with TickerProviderStateMixin {
   bool _isPlaying = false;
-  bool _isOnline = true;
-  bool _isConnected = true;
-  bool _isUpToDate = true;
-  bool _isSynced = true;
+  final bool _isOnline = true;
+  final bool _isConnected = true;
+  final bool _isUpToDate = true;
+  final bool _isSynced = true;
   
   late AnimationController _equalizerController;
   
@@ -53,7 +53,7 @@ class _PlayerHomePageState extends State<PlayerHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Row(
           children: [
@@ -70,7 +70,7 @@ class _PlayerHomePageState extends State<PlayerHomePage>
             ),
           ],
         ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         elevation: 0,
         actions: [
           IconButton(
