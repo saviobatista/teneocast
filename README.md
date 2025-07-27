@@ -2,6 +2,14 @@
 
 **TeneoCast** is a cross-platform, multi-tenant indoor radio software platform that empowers local businesses to run customized radio stations with real-time control, offline playback, and flexible infrastructure.
 
+## 📊 Status
+
+[![Build Status](https://github.com/saviobatista/teneocast/workflows/CI/badge.svg)](https://github.com/saviobatista/teneocast/actions)
+[![Test Coverage](https://codecov.io/gh/saviobatista/teneocast/branch/main/graph/badge.svg)](https://codecov.io/gh/saviobatista/teneocast)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Flutter Version](https://img.shields.io/badge/Flutter-3.10+-blue.svg)](https://flutter.dev)
+[![Java Version](https://img.shields.io/badge/Java-17+-green.svg)](https://adoptium.net/)
+
 ## 🎯 Overview
 
 TeneoCast blends the Latin word *"teneo"* (to hold or possess) with *"cast"* (broadcast), capturing the essence of empowering users with control over audio streaming.
@@ -45,20 +53,33 @@ Infrastructure:
 
 ### Prerequisites
 
-- Java 17+
-- Flutter 3.10+
-- Docker & Docker Compose
-- Node.js 18+ (for tooling)
+- **Java 17+** - [Download from Adoptium](https://adoptium.net/)
+- **Flutter 3.10+** - [Install Flutter](https://flutter.dev/docs/get-started/install)
+- **Docker & Docker Compose** - [Install Docker](https://docs.docker.com/get-docker/)
+- **Node.js 18+** (for tooling) - [Download Node.js](https://nodejs.org/)
 
 ### Local Development
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-org/teneocast.git
+   git clone https://github.com/saviobatista/teneocast.git
    cd teneocast
    ```
 
-2. **Choose your development mode**
+2. **Verify your setup**
+   ```bash
+   # Check Flutter installation
+   flutter doctor
+   
+   # Check Java version
+   java -version
+   
+   # Check Docker
+   docker --version
+   docker-compose --version
+   ```
+
+3. **Choose your development mode**
 
    **🐳 Docker Mode (Recommended)**
    ```bash
@@ -82,6 +103,45 @@ Infrastructure:
    # Run frontend applications locally
    ./scripts/dev/start-frontend.sh
    ```
+
+4. **Access the applications**
+   - **Player (Web)**: http://localhost:3000
+   - **Studio**: http://localhost:3001
+   - **Console**: http://localhost:3002
+   - **Backend API**: http://localhost:8080
+
+### 🚨 Troubleshooting
+
+**Common Issues:**
+
+1. **Flutter not found**
+   ```bash
+   export PATH="$PATH:$HOME/flutter/bin"
+   ```
+
+2. **Port conflicts**
+   ```bash
+   # Check what's using port 8080
+   lsof -i :8080
+   # Kill the process or change ports in docker-compose.yml
+   ```
+
+3. **Docker permission issues**
+   ```bash
+   sudo usermod -aG docker $USER
+   # Log out and back in
+   ```
+
+4. **Java version mismatch**
+   ```bash
+   # Set JAVA_HOME
+   export JAVA_HOME=/path/to/java17
+   ```
+
+**Getting Help:**
+- Check the [Issues](https://github.com/saviobatista/teneocast/issues) page
+- Join our [Discord](https://discord.gg/teneocast) community
+- Review the [Full Stack Plan](docs/indoor_radio_full_stack_plan.md)
 
 ## 📁 Project Structure
 
@@ -179,4 +239,10 @@ All frontend applications use Flutter with:
 
 ## 📄 License
 
-Copyright © 2024 TeneoCast. All rights reserved. 
+TeneoCast uses a **dual-licensing model**:
+- **🆓 Free for individuals and small businesses** (≤ 10 employees)
+- **💼 Commercial licenses for larger organizations**
+
+See [LICENSE.md](LICENSE.md) for detailed licensing information.
+
+**Copyright © 2024 TeneoCast. All rights reserved.** 

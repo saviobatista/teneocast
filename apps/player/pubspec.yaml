@@ -42,11 +42,8 @@ dependencies:
   # Background Tasks (Android)
   workmanager: ^0.5.2
   
-  # System Integration
+  # System Integration (Platform-specific packages added when needed)
   wakelock_plus: ^1.1.4  # Cross-platform
-  window_manager: ^0.3.7  # Windows only
-  system_tray: ^2.0.3     # Windows only
-  auto_start_windows: ^0.2.1  # Windows only
   
   # Caching
   cached_network_image: ^3.3.0
@@ -68,8 +65,7 @@ dependencies:
   # JSON
   json_annotation: ^4.8.1
   
-  # PWA Support (Web)
-  flutter_pwa: ^1.0.4
+  # PWA Support (Web) - Built-in Flutter web support
 
 dev_dependencies:
   flutter_test:
@@ -97,19 +93,6 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/audio/
-    - .env
-    - web/  # Web-specific assets
-  
-  fonts:
-    - family: Manrope
-      fonts:
-        - asset: assets/fonts/Manrope-Regular.ttf
-        - asset: assets/fonts/Manrope-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Manrope-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Manrope-Bold.ttf
-          weight: 700
 
 # Windows-specific configuration for MSIX packaging
 msix:

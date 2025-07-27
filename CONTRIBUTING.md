@@ -2,267 +2,177 @@
 
 Thank you for your interest in contributing to TeneoCast! This document provides guidelines and information for contributors.
 
+## 🤝 How to Contribute
+
+### Types of Contributions
+
+- **🐛 Bug Reports**: Report issues you've found
+- **✨ Feature Requests**: Suggest new features
+- **📝 Documentation**: Improve or add documentation
+- **💻 Code Contributions**: Submit code changes
+- **🧪 Testing**: Add or improve tests
+
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Java 17+
-- Flutter 3.10+
-- Docker & Docker Compose
-- Git
+- **Flutter 3.10+** for frontend development
+- **Java 17+** for backend development
+- **Docker & Docker Compose** for local development
+- **Git** for version control
 
-### Setting Up Development Environment
+### Development Setup
 
-1. **Clone the repository**
+1. **Fork the repository**
    ```bash
-   git clone https://github.com/your-org/teneocast.git
+   git clone https://github.com/saviobatista/teneocast.git
    cd teneocast
    ```
 
-2. **Run the setup script**
+2. **Set up your development environment**
    ```bash
-   ./scripts/dev-setup.sh
-   ```
-
-3. **Choose development mode**
-
-   **🐳 Docker Mode (Recommended)**
-   ```bash
-   # Start everything in containers
+   # Install dependencies
+   flutter doctor
+   java -version
+   
+   # Start development environment
    ./scripts/docker-dev.sh start all
-   
-   # Or start components separately
-   ./scripts/docker-dev.sh start infrastructure
-   ./scripts/docker-dev.sh start frontend
    ```
 
-   **🖥️ Local Mode**
-   ```bash
-   # Backend (local)
-   ./scripts/dev/start-backend.sh
-   
-   # Frontend (local, in another terminal)
-   ./scripts/dev/start-frontend.sh
-   ```
-
-## 📋 Development Guidelines
-
-### Code Style
-
-#### Backend (Java/Spring Boot)
-- Follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
-- Use meaningful variable and method names
-- Write comprehensive Javadoc for public APIs
-- Maintain test coverage above 80%
-
-#### Frontend (Flutter/Dart)
-- Follow [Dart Style Guide](https://dart.dev/guides/language/effective-dart/style)
-- Use `flutter analyze` to check code quality
-- Implement responsive design principles
-- Write widget tests for UI components
-
-### Commit Messages
-
-Use [Conventional Commits](https://www.conventionalcommits.org/) format:
-
-```
-<type>[optional scope]: <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-Examples:
-- `feat(auth): add JWT token refresh mechanism`
-- `fix(player): resolve audio sync issue on Windows`
-- `docs(api): update WebSocket protocol documentation`
-
-### Branch Naming
-
-- `feature/description` - New features
-- `bugfix/description` - Bug fixes
-- `hotfix/description` - Critical fixes
-- `docs/description` - Documentation updates
-
-### Testing Requirements
-
-#### Backend
-- Unit tests for all service methods
-- Integration tests for API endpoints
-- Use Testcontainers for database tests
-- Mock external dependencies
-
-#### Frontend
-- Widget tests for UI components
-- Integration tests for user flows
-- Unit tests for business logic
-- Test on multiple screen sizes
-
-### Pull Request Process
-
-1. **Create a feature branch**
+3. **Create a feature branch**
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
-2. **Make your changes**
-   - Write tests first (TDD approach recommended)
-   - Implement the feature
-   - Ensure all tests pass
+## 📝 Code Style Guidelines
 
-3. **Run quality checks**
-   ```bash
-   # Backend
-   cd backend && ./gradlew check
-   
-   # Frontend
-   cd apps/studio && flutter analyze && flutter test
-   cd apps/player && flutter analyze && flutter test
-   ```
+### Flutter/Dart
+- Follow the [Dart Style Guide](https://dart.dev/guides/language/effective-dart/style)
+- Use `flutter analyze` to check code quality
+- Write comprehensive widget tests for new components
+- Use meaningful variable and function names
 
-4. **Submit Pull Request**
-   - Use the PR template
-   - Link related issues
-   - Add screenshots for UI changes
-   - Request review from maintainers
+### Java/Spring Boot
+- Follow [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)
+- Use meaningful class and method names
+- Write unit tests for new functionality
+- Document public APIs with Javadoc
+
+### General
+- Write clear, descriptive commit messages
+- Keep functions small and focused
+- Add comments for complex logic
+- Update documentation when changing APIs
+
+## 🧪 Testing
+
+### Frontend Testing
+```bash
+# Run all Flutter tests
+cd apps/player
+flutter test
+
+# Run with coverage
+flutter test --coverage
+```
+
+### Backend Testing
+```bash
+# Run all backend tests
+cd backend
+./gradlew test
+
+# Run integration tests
+./gradlew integrationTest
+```
+
+## 📋 Pull Request Process
+
+1. **Create a feature branch** from `main`
+2. **Make your changes** following the style guidelines
+3. **Write tests** for new functionality
+4. **Update documentation** if needed
+5. **Run tests** to ensure everything passes
+6. **Submit a pull request** with a clear description
 
 ### Pull Request Template
 
 ```markdown
 ## Description
-Brief description of changes
+Brief description of the changes
 
 ## Type of Change
 - [ ] Bug fix
 - [ ] New feature
-- [ ] Breaking change
 - [ ] Documentation update
+- [ ] Test improvement
 
 ## Testing
-- [ ] Unit tests added/updated
-- [ ] Integration tests added/updated
+- [ ] Unit tests pass
+- [ ] Integration tests pass
 - [ ] Manual testing completed
-
-## Screenshots (if applicable)
 
 ## Checklist
 - [ ] Code follows style guidelines
-- [ ] Self-review completed
-- [ ] Tests pass locally
 - [ ] Documentation updated
+- [ ] Tests added/updated
+- [ ] Commit messages are clear
 ```
-
-## 🏗️ Architecture Guidelines
-
-### Backend Services
-
-- **Single Responsibility**: Each service has one clear purpose
-- **Database per Service**: Each service owns its data
-- **API First**: Design APIs before implementation
-- **Security**: Implement authentication and authorization
-- **Observability**: Add logging, metrics, and tracing
-
-### Frontend Applications
-
-- **Component-Based**: Build reusable UI components
-- **State Management**: Use BLoC pattern consistently
-- **Responsive Design**: Support multiple screen sizes
-- **Offline Support**: Implement offline capabilities where needed
-- **Accessibility**: Follow accessibility guidelines
-
-### Database Design
-
-- **Migrations**: Use Flyway for schema changes
-- **Indexes**: Add appropriate database indexes
-- **Constraints**: Enforce data integrity at database level
-- **Audit Trails**: Track changes to critical data
 
 ## 🐛 Reporting Issues
 
-### Bug Reports
+### Bug Report Template
 
-Include the following information:
-- TeneoCast version
-- Platform (Windows, Android, Web)
-- Steps to reproduce
-- Expected vs actual behavior
-- Screenshots or logs
-- Environment details
+```markdown
+**Describe the bug**
+A clear description of what the bug is.
 
-### Feature Requests
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Go to '...'
+2. Click on '....'
+3. See error
 
-- Clear description of the feature
-- Use case and business value
-- Proposed implementation approach
-- Any breaking changes
+**Expected behavior**
+A clear description of what you expected to happen.
 
-## 📚 Documentation
+**Environment:**
+- OS: [e.g. Windows 11]
+- Flutter Version: [e.g. 3.10.0]
+- Java Version: [e.g. 17.0.2]
 
-### API Documentation
+**Additional context**
+Add any other context about the problem here.
+```
 
-- Use OpenAPI/Swagger specifications
-- Include request/response examples
-- Document authentication requirements
-- Provide error code explanations
+## 🎯 Feature Requests
 
-### Code Documentation
+### Feature Request Template
 
-- Document complex business logic
-- Include architecture decision records (ADRs)
-- Maintain up-to-date README files
-- Write clear inline comments
+```markdown
+**Is your feature request related to a problem?**
+A clear description of what the problem is.
 
-## 🔒 Security
+**Describe the solution you'd like**
+A clear description of what you want to happen.
 
-### Reporting Security Issues
+**Describe alternatives you've considered**
+A clear description of any alternative solutions.
 
-**Do not open public issues for security vulnerabilities.**
+**Additional context**
+Add any other context or screenshots about the feature request.
+```
 
-Email security issues to: security@teneocast.com
+## 📞 Getting Help
 
-Include:
-- Description of the vulnerability
-- Steps to reproduce
-- Potential impact
-- Suggested fix (if known)
-
-### Security Guidelines
-
-- Never commit secrets or credentials
-- Use environment variables for configuration
-- Validate all user inputs
-- Implement proper authentication/authorization
-- Use HTTPS in production
-- Regularly update dependencies
+- **GitHub Issues**: [Create an issue](https://github.com/saviobatista/teneocast/issues)
+- **Discord Community**: [Join our community](https://discord.gg/teneocast)
+- **Documentation**: Check the [docs](docs/) folder
 
 ## 📄 License
 
-By contributing to TeneoCast, you agree that your contributions will be licensed under the project's license.
+By contributing to TeneoCast, you agree that your contributions will be licensed under the same license as the project.
 
-## 🤝 Code of Conduct
+---
 
-### Our Pledge
-
-We are committed to providing a welcoming and inclusive experience for everyone.
-
-### Standards
-
-- Use welcoming and inclusive language
-- Respect differing viewpoints and experiences
-- Accept constructive criticism gracefully
-- Focus on what's best for the community
-- Show empathy towards other community members
-
-### Enforcement
-
-Instances of unacceptable behavior may be reported to the project maintainers.
-
-## 🎉 Recognition
-
-Contributors will be recognized in:
-- Release notes
-- Contributors file
-- Project documentation
-
-Thank you for contributing to TeneoCast! 🚀 
+Thank you for contributing to TeneoCast! 🎉 

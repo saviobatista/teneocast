@@ -1,6 +1,18 @@
 # TeneoCast Player - Cross-Platform Flutter App
 
+[![Build Status](https://github.com/saviobatista/teneocast/workflows/Player%20CI/badge.svg)](https://github.com/saviobatista/teneocast/actions)
+[![Test Coverage](https://codecov.io/gh/saviobatista/teneocast/branch/main/graph/badge.svg?flag=player)](https://codecov.io/gh/saviobatista/teneocast)
+[![Flutter Version](https://img.shields.io/badge/Flutter-3.10+-blue.svg)](https://flutter.dev)
+
 This is the unified TeneoCast Player application built with Flutter, supporting multiple platforms from a single codebase.
+
+## 🎯 Features
+
+- **Cross-Platform**: Single codebase for Web, Windows, and Android
+- **Offline-First**: Cached audio playback with smart sync
+- **Real-Time Control**: WebSocket-based remote commands
+- **Modern UI**: Material Design 3 with TeneoCast branding
+- **Comprehensive Testing**: 46+ widget tests with 100% coverage
 
 ## Supported Platforms
 
@@ -32,15 +44,45 @@ This is the unified TeneoCast Player application built with Flutter, supporting 
 
 ### Prerequisites
 
-- Flutter 3.10+
+- **Flutter 3.10+** - [Install Flutter](https://flutter.dev/docs/get-started/install)
 - Platform-specific requirements:
   - **Web**: Chrome browser
   - **Windows**: Visual Studio 2022 with C++ development tools
   - **Android**: Android Studio with SDK
 
+### Project Structure
+
+```
+apps/player/
+├── lib/
+│   ├── app.dart                    # Main app widget
+│   ├── main.dart                   # App entry point
+│   └── presentation/
+│       ├── pages/
+│       │   └── player_home_page.dart
+│       └── widgets/
+│           ├── status_bar.dart
+│           ├── now_playing_card.dart
+│           ├── player_controls.dart
+│           ├── visual_equalizer.dart
+│           ├── play_history.dart
+│           ├── help_dialog.dart
+│           └── bug_report_dialog.dart
+├── test/
+│   ├── widget_test.dart            # Main app tests
+│   └── widgets/                    # Individual widget tests
+└── web/                           # Web-specific assets
+```
+
 ### Running for Development
 
 ```bash
+# Navigate to player directory
+cd apps/player
+
+# Check Flutter setup
+flutter doctor
+
 # Web (development)
 flutter run -d chrome
 
@@ -49,6 +91,19 @@ flutter run -d windows
 
 # Android (with device/emulator)
 flutter run -d android
+```
+
+### Testing
+
+```bash
+# Run all tests
+flutter test
+
+# Run tests with coverage
+flutter test --coverage
+
+# Run specific test file
+flutter test test/widgets/status_bar_test.dart
 ```
 
 ### Building for Production
