@@ -78,6 +78,11 @@ void main() {
       );
 
       expect(find.text('Admin Console'), findsOneWidget);
+      
+      // Open dropdown to see tenant options
+      await tester.tap(find.byType(DropdownButton<String>));
+      await tester.pumpAndSettle();
+      
       expect(find.text('Test Tenant 1'), findsOneWidget);
       expect(find.text('Test Tenant 2'), findsOneWidget);
     });
@@ -93,6 +98,10 @@ void main() {
           ),
         ),
       );
+
+      // Open dropdown to see tenant options
+      await tester.tap(find.byType(DropdownButton<String>));
+      await tester.pumpAndSettle();
 
       // Should show client count for each tenant
       expect(find.text('5 clients'), findsOneWidget);
@@ -193,6 +202,10 @@ void main() {
           ),
         ),
       );
+
+      // Open dropdown to see tenant options
+      await tester.tap(find.byType(DropdownButton<String>));
+      await tester.pumpAndSettle();
 
       expect(find.text('test-tenant-1'), findsOneWidget);
       expect(find.text('test-tenant-2'), findsOneWidget);

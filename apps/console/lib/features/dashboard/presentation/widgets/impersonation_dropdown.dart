@@ -16,7 +16,7 @@ class ImpersonationDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedTenant = tenants.isNotEmpty 
+    final selectedTenant = tenants.isNotEmpty && selectedTenantId != null && selectedTenantId!.isNotEmpty
         ? tenants.firstWhere(
             (tenant) => tenant.id == selectedTenantId,
             orElse: () => tenants.first,
@@ -43,7 +43,7 @@ class ImpersonationDropdown extends StatelessWidget {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: selectedTenantId,
+                value: selectedTenantId?.isEmpty == true ? null : selectedTenantId,
                 isExpanded: true,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 borderRadius: BorderRadius.circular(8),
@@ -122,13 +122,16 @@ class ImpersonationDropdown extends StatelessWidget {
                 onChanged: (value) {
                   if (value != null) {
                     onTenantSelected(value);
+                  } else {
+                    // Handle null value (Admin Console selected)
+                    onTenantSelected('');
                   }
                 },
                 hint: const Text('Select tenant to impersonate'),
               ),
             ),
           ),
-          if (selectedTenantId != null) ...[
+          if (selectedTenantId != null && selectedTenantId!.isNotEmpty) ...[
             const SizedBox(height: 8),
             Row(
               children: [
@@ -147,7 +150,10 @@ class ImpersonationDropdown extends StatelessWidget {
                    ),
                  ),
                 TextButton(
-                  onPressed: () => onTenantSelected(''),
+                  onPressed: () {
+                    // Set to null to select Admin Console
+                    onTenantSelected('');
+                  },
                   child: const Text('Exit'),
                 ),
               ],
