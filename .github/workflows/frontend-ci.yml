@@ -20,7 +20,8 @@ jobs:
     
     strategy:
       matrix:
-        app: [studio, console, player]
+        # app: [studio, console, player] # TODO: Uncomment this when we have tests for the other apps
+        app: [player]
     
     steps:
     - name: Checkout code
