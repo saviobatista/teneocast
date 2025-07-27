@@ -70,7 +70,7 @@ class _PlayerHomePageState extends State<PlayerHomePage>
             ),
           ],
         ),
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         actions: [
           IconButton(
