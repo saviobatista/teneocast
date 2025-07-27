@@ -17,8 +17,9 @@ This is the unified TeneoCast Player application built with Flutter, supporting 
 ## Supported Platforms
 
 - **Web** - Progressive Web App with offline support
-- **Windows** - Desktop application with system tray integration
+- **Windows** - Desktop application with system tray integration  
 - **Android** - Mobile app with background playback
+- **macOS** - Desktop application (development only)
 
 ## Platform-Specific Features
 
@@ -47,8 +48,9 @@ This is the unified TeneoCast Player application built with Flutter, supporting 
 - **Flutter 3.10+** - [Install Flutter](https://flutter.dev/docs/get-started/install)
 - Platform-specific requirements:
   - **Web**: Chrome browser
-  - **Windows**: Visual Studio 2022 with C++ development tools
+  - **Windows**: Visual Studio 2022 with C++ development tools (Windows only)
   - **Android**: Android Studio with SDK
+  - **macOS**: Xcode (macOS only)
 
 ### Project Structure
 
@@ -91,6 +93,9 @@ flutter run -d windows
 
 # Android (with device/emulator)
 flutter run -d android
+
+# macOS (development)
+flutter run -d macos
 ```
 
 ### Testing
@@ -119,6 +124,22 @@ flutter pub run msix:create  # Creates MSIX installer
 # Android build
 flutter build apk --release        # APK
 flutter build appbundle --release  # App Bundle for Play Store
+
+# macOS build
+flutter build macos --release
+```
+
+### Multi-Platform Build Script
+
+For convenience, use the provided build script to build for all platforms:
+
+```bash
+# Build for Windows and Android (debug)
+./build_platforms.sh
+
+# Or build individual platforms
+flutter build windows --debug
+flutter build apk --debug
 ```
 
 ## Platform Detection
