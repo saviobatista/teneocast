@@ -73,16 +73,4 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/audio/
-    - .env
-  
-  fonts:
-    - family: Manrope
-      fonts:
-        - asset: assets/fonts/Manrope-Regular.ttf
-        - asset: assets/fonts/Manrope-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Manrope-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Manrope-Bold.ttf
-          weight: 700 
+    - assets/audio/ 
