@@ -1,0 +1,89 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.0' apply false
+    id 'io.spring.dependency-management' version '1.1.4' apply false
+    id 'org.flywaydb.flyway' version '9.22.3' apply false
+}
+
+allprojects {
+    group = 'com.teneocast'
+    version = '1.0.0'
+    
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    
+    java {
+        sourceCompatibility = '17'
+        targetCompatibility = '17'
+    }
+    
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+    
+    dependencies {
+        // Spring Boot Starters
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+        
+        // WebSocket support
+        implementation 'org.springframework.boot:spring-boot-starter-websocket'
+        
+        // Database
+        runtimeOnly 'org.postgresql:postgresql'
+        implementation 'org.flywaydb:flyway-core'
+        
+        // JSON Web Tokens
+        implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+        runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+        runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+        
+        // Kafka (optional)
+        implementation 'org.springframework.kafka:spring-kafka'
+        
+        // AWS SDK
+        implementation 'software.amazon.awssdk:s3:2.21.0'
+        
+        // Utilities
+        implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+        annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+        
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+        
+        // Testing
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.springframework.security:spring-security-test'
+        testImplementation 'org.testcontainers:junit-jupiter'
+        testImplementation 'org.testcontainers:postgresql'
+        testImplementation 'org.testcontainers:kafka'
+        testImplementation 'org.springframework.kafka:spring-kafka-test'
+    }
+    
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+    
+    // Common configuration for all services
+    bootJar {
+        enabled = true
+        archiveClassifier = ''
+    }
+    
+    jar {
+        enabled = false
+    }
+} 

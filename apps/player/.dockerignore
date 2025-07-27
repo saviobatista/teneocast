@@ -1,0 +1,41 @@
+# Flutter build artifacts
+build/
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Environment files
+.env*
+!.env.example
+
+# Logs
+*.log
+
+# Testing
+coverage/
+test-results/
+
+# Documentation
+*.md
+docs/
+
+# Flutter specific - keep only web for Docker build
+ios/
+android/
+macos/
+linux/
+windows/ 

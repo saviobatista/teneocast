@@ -1,0 +1,73 @@
+version: '3.8'
+
+# Frontend-only Docker Compose for development
+# Use this when you want to run just the frontend apps in containers
+
+services:
+  # Studio Interface
+  studio:
+    build:
+      context: ./apps/studio
+      dockerfile: Dockerfile
+    container_name: teneocast_studio_dev
+    ports:
+      - "3001:80"
+    environment:
+      - BACKEND_URL=http://localhost:8080
+    volumes:
+      # Mount source code for development (optional)
+      - ./apps/studio:/app
+    networks:
+      - frontend_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Console Interface
+  console:
+    build:
+      context: ./apps/console
+      dockerfile: Dockerfile
+    container_name: teneocast_console_dev
+    ports:
+      - "3002:80"
+    environment:
+      - BACKEND_URL=http://localhost:8080
+    volumes:
+      # Mount source code for development (optional)
+      - ./apps/console:/app
+    networks:
+      - frontend_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Player Interface
+  player:
+    build:
+      context: ./apps/player
+      dockerfile: Dockerfile
+    container_name: teneocast_player_dev
+    ports:
+      - "3003:80"
+    environment:
+      - BACKEND_URL=http://localhost:8080
+      - WEBSOCKET_URL=ws://localhost:8082/ws
+    volumes:
+      # Mount source code for development (optional)
+      - ./apps/player:/app
+    networks:
+      - frontend_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  frontend_network:
+    driver: bridge 

@@ -1,0 +1,10 @@
+rootProject.name = 'teneocast-backend'
+
+include 'common'
+include 'auth-service'
+include 'tenant-service'
+include 'media-service'
+include 'player-service'
+include 'analytics-service'
+include 'tts-service'
+include 'admin-service' 

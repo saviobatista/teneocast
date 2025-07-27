@@ -1,0 +1,202 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15
+    container_name: teneocast_postgres
+    environment:
+      POSTGRES_DB: teneocast
+      POSTGRES_USER: teneocast
+      POSTGRES_PASSWORD: teneocast_dev
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/docker/postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - teneocast_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teneocast -d teneocast"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: teneocast_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - teneocast_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # MinIO (S3-compatible storage)
+  minio:
+    image: minio/minio:latest
+    container_name: teneocast_minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: teneocast
+      MINIO_ROOT_PASSWORD: teneocast_dev
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    volumes:
+      - minio_data:/data
+    networks:
+      - teneocast_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Kafka (optional - for event streaming)
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: teneocast_kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - teneocast_network
+
+  # Zookeeper (for Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: teneocast_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - teneocast_network
+
+  # Frontend Applications
+  studio:
+    build:
+      context: ./apps/studio
+      dockerfile: Dockerfile
+    container_name: teneocast_studio
+    ports:
+      - "3001:80"
+    networks:
+      - teneocast_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  console:
+    build:
+      context: ./apps/console
+      dockerfile: Dockerfile
+    container_name: teneocast_console
+    ports:
+      - "3002:80"
+    networks:
+      - teneocast_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  player:
+    build:
+      context: ./apps/player
+      dockerfile: Dockerfile
+    container_name: teneocast_player
+    ports:
+      - "3003:80"
+    networks:
+      - teneocast_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Spring Boot Services (commented out for initial setup)
+  # Uncomment and configure when services are ready
+  
+  # auth-service:
+  #   build:
+  #     context: ./backend/auth-service
+  #     dockerfile: Dockerfile
+  #   container_name: teneocast_auth_service
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: docker
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/teneocast
+  #     SPRING_DATASOURCE_USERNAME: teneocast
+  #     SPRING_DATASOURCE_PASSWORD: teneocast_dev
+  #     SPRING_REDIS_HOST: redis
+  #     SPRING_REDIS_PORT: 6379
+  #   ports:
+  #     - "8081:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   networks:
+  #     - teneocast_network
+
+  # player-service:
+  #   build:
+  #     context: ./backend/player-service
+  #     dockerfile: Dockerfile
+  #   container_name: teneocast_player_service
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: docker
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/teneocast
+  #     SPRING_DATASOURCE_USERNAME: teneocast
+  #     SPRING_DATASOURCE_PASSWORD: teneocast_dev
+  #     SPRING_REDIS_HOST: redis
+  #     SPRING_REDIS_PORT: 6379
+  #   ports:
+  #     - "8082:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   networks:
+  #     - teneocast_network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local
+  kafka_data:
+    driver: local
+  zookeeper_data:
+    driver: local
+
+networks:
+  teneocast_network:
+    driver: bridge 
