@@ -58,7 +58,8 @@ jobs:
     
     strategy:
       matrix:
-        app: [studio, console, player]
+        # app: [studio, console, player] # TODO: Uncomment this when we have tests for the other apps
+        app: [player]
     
     steps:
     - name: Checkout code
@@ -78,25 +79,25 @@ jobs:
       run: flutter build web --release
       working-directory: apps/${{ matrix.app }}
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+    # - name: Configure AWS credentials
+    #   uses: aws-actions/configure-aws-credentials@v2
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Deploy to S3
-      run: |
-        if [ "${{ matrix.app }}" == "studio" ]; then
-          BUCKET="studio.teneocast.com"
-        elif [ "${{ matrix.app }}" == "console" ]; then
-          BUCKET="console.teneocast.com"
-        elif [ "${{ matrix.app }}" == "player" ]; then
-          BUCKET="player.teneocast.com"
-        fi
+    # - name: Deploy to S3
+    #   run: |
+    #     if [ "${{ matrix.app }}" == "studio" ]; then
+    #       BUCKET="studio.teneocast.com"
+    #     elif [ "${{ matrix.app }}" == "console" ]; then
+    #       BUCKET="console.teneocast.com"
+    #     elif [ "${{ matrix.app }}" == "player" ]; then
+    #       BUCKET="player.teneocast.com"
+    #     fi
         
-        aws s3 sync apps/${{ matrix.app }}/build/web/ s3://$BUCKET --delete
-        aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+    #     aws s3 sync apps/${{ matrix.app }}/build/web/ s3://$BUCKET --delete
+    #     aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
 
   build-windows:
     needs: test
