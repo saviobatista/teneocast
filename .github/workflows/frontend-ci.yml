@@ -125,21 +125,25 @@ jobs:
       run: flutter build windows --release
       working-directory: apps/player
 
-    - name: Package Windows app
-      run: flutter pub run msix:create
+    - name: Package Windows app (Skip MSIX for CI/CD)
+      run: |
+        # Skip MSIX packaging for CI/CD to avoid certificate prompts
+        # MSIX requires code signing certificates which are not available in CI/CD
+        # The Windows executable (.exe) is already built and available for distribution
+        echo "Skipping MSIX packaging in CI/CD environment - using executable instead"
       working-directory: apps/player
 
     - name: Upload Windows package
       uses: actions/upload-artifact@v4
       with:
         name: teneocast-player-windows
-        path: apps/player/build/windows/runner/Release/
+        path: apps/player/build/windows/x64/runner/Release/
 
     - name: Create Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: apps/player/build/windows/x64/runner/Release/*.msix
+        files: apps/player/build/windows/x64/runner/Release/*.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
