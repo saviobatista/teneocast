@@ -16,8 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureWebMvc
@@ -32,6 +32,9 @@ class AuthControllerTest {
     
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
@@ -51,23 +54,134 @@ class AuthControllerTest {
                 .build();
         
         userRepository.save(testUser);
+        
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        objectMapper = new ObjectMapper();
     }
 
     @Test
-    void testLoginEndpoint() throws Exception {
-        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        
+    void testLoginEndpoint_Success() throws Exception {
         LoginRequest loginRequest = LoginRequest.builder()
                 .usernameOrEmail("testuser")
                 .password("password123")
                 .build();
         
-        ObjectMapper objectMapper = new ObjectMapper();
+        String requestJson = objectMapper.writeValueAsString(loginRequest);
+        
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").exists())
+                .andExpect(jsonPath("$.refreshToken").exists())
+                .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.expiresIn").exists())
+                .andExpect(jsonPath("$.user").exists());
+    }
+
+    @Test
+    void testLoginEndpoint_WithEmail() throws Exception {
+        LoginRequest loginRequest = LoginRequest.builder()
+                .usernameOrEmail("test@example.com")
+                .password("password123")
+                .build();
+        
         String requestJson = objectMapper.writeValueAsString(loginRequest);
         
         mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestJson))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testLoginEndpoint_InvalidCredentials() throws Exception {
+        LoginRequest loginRequest = LoginRequest.builder()
+                .usernameOrEmail("testuser")
+                .password("wrongpassword")
+                .build();
+        
+        String requestJson = objectMapper.writeValueAsString(loginRequest);
+        
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testLoginEndpoint_UserNotFound() throws Exception {
+        LoginRequest loginRequest = LoginRequest.builder()
+                .usernameOrEmail("nonexistent")
+                .password("password123")
+                .build();
+        
+        String requestJson = objectMapper.writeValueAsString(loginRequest);
+        
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testLoginEndpoint_InvalidRequest() throws Exception {
+        String invalidJson = "{\"invalid\": \"json\"}";
+        
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testRefreshTokenEndpoint() throws Exception {
+        // Test refresh token endpoint with a dummy token
+        // In a real scenario, you'd get a valid token from login
+        mockMvc.perform(post("/auth/refresh")
+                .param("refreshToken", "dummy_refresh_token"))
+                .andExpect(status().isInternalServerError()); // Should fail with invalid token
+    }
+
+    @Test
+    void testLogoutEndpoint() throws Exception {
+        mockMvc.perform(post("/auth/logout")
+                .param("refreshToken", "dummy_refresh_token"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testHealthEndpoint() throws Exception {
+        mockMvc.perform(get("/auth/health"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Auth service is running"));
+    }
+
+    @Test
+    void testLoginEndpoint_MissingUsername() throws Exception {
+        LoginRequest loginRequest = LoginRequest.builder()
+                .password("password123")
+                .build();
+        
+        String requestJson = objectMapper.writeValueAsString(loginRequest);
+        
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testLoginEndpoint_MissingPassword() throws Exception {
+        LoginRequest loginRequest = LoginRequest.builder()
+                .usernameOrEmail("testuser")
+                .build();
+        
+        String requestJson = objectMapper.writeValueAsString(loginRequest);
+        
+        mockMvc.perform(post("/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(status().isBadRequest());
     }
 } 
