@@ -138,30 +138,33 @@ services:
       timeout: 10s
       retries: 3
 
-  # Spring Boot Services (commented out for initial setup)
-  # Uncomment and configure when services are ready
-  
-  # auth-service:
-  #   build:
-  #     context: ./backend/auth-service
-  #     dockerfile: Dockerfile
-  #   container_name: teneocast_auth_service
-  #   environment:
-  #     SPRING_PROFILES_ACTIVE: docker
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/teneocast
-  #     SPRING_DATASOURCE_USERNAME: teneocast
-  #     SPRING_DATASOURCE_PASSWORD: teneocast_dev
-  #     SPRING_REDIS_HOST: redis
-  #     SPRING_REDIS_PORT: 6379
-  #   ports:
-  #     - "8081:8080"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #   networks:
-  #     - teneocast_network
+  # Spring Boot Services
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile
+    container_name: teneocast_auth_service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/teneocast
+      SPRING_DATASOURCE_USERNAME: teneocast
+      SPRING_DATASOURCE_PASSWORD: teneocast_dev
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - teneocast_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # player-service:
   #   build:
