@@ -125,7 +125,13 @@ void main() {
     });
 
     testWidgets('handles large data sets', (WidgetTester tester) async {
-      final largeDataSet = <ChartDataPoint>[];
+      final largeDataSet = <ChartDataPoint>[
+        ChartDataPoint(date: DateTime(2024, 1, 1), value: 10),
+        ChartDataPoint(date: DateTime(2024, 1, 2), value: 15),
+        ChartDataPoint(date: DateTime(2024, 1, 3), value: 12),
+        ChartDataPoint(date: DateTime(2024, 1, 4), value: 18),
+        ChartDataPoint(date: DateTime(2024, 1, 5), value: 20),
+      ];
 
       await tester.pumpWidget(
         MaterialApp(
