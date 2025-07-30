@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "auth")
 @Data
 @Builder
 @NoArgsConstructor

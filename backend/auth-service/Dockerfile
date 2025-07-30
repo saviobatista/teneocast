@@ -30,5 +30,5 @@ USER app
 # Expose the port
 EXPOSE 8080
 
-# Run the application
-CMD ["./gradlew", "bootRun"] 
+# Run the application with Docker profile
+CMD ["./gradlew", "bootRun", "--args='--spring.profiles.active=docker'"] 
