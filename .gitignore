@@ -40,6 +40,48 @@ gradle-app.setting
 .springBeans
 spring-shell.log
 
+# Gradle specific
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradle.kts
+buildSrc/
+gradle.properties
+local.properties
+
+# Java build artifacts
+**/build/
+**/target/
+**/out/
+**/bin/
+**/classes/
+**/test-classes/
+**/generated-sources/
+**/generated-test-sources/
+**/META-INF/
+**/WEB-INF/
+**/lib/
+**/libs/
+
+# Spring Boot specific
+**/application-*.yml
+**/application-*.properties
+!**/application.yml
+!**/application.properties
+!**/application-test.yml
+!**/application-test.properties
+
+# Microservices specific
+**/auth-service/build/
+**/admin-service/build/
+**/analytics-service/build/
+**/media-service/build/
+**/player-service/build/
+**/tenant-service/build/
+**/tts-service/build/
+**/common/build/
+
 # Flutter
 **/flutter/ephemeral/
 **/Pods/
@@ -117,6 +159,10 @@ analytics-data/
 coverage/
 test-results/
 .nyc_output/
+**/test-results/
+**/reports/
+**/jacoco/
+**/.coverage/
 
 # Backup files
 *.backup
