@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -66,6 +67,16 @@ class AuthServiceWithKafkaIntegrationTest {
         // Configure TestRestTemplate to handle authentication responses
         restTemplate.getRestTemplate().setRequestFactory(
             new org.springframework.http.client.SimpleClientHttpRequestFactory()
+        );
+        // Configure error handler to not throw exceptions for 4xx responses
+        restTemplate.getRestTemplate().setErrorHandler(
+            new org.springframework.web.client.DefaultResponseErrorHandler() {
+                @Override
+                public boolean hasError(org.springframework.http.client.ClientHttpResponse response) throws java.io.IOException {
+                    // Don't treat 4xx responses as errors for testing
+                    return response.getStatusCode().is5xxServerError();
+                }
+            }
         );
     }
 
@@ -152,9 +163,10 @@ class AuthServiceWithKafkaIntegrationTest {
     void testInvalidAuthenticationScenarios() {
         // Test with non-existent user
         LoginRequest nonExistentRequest = new LoginRequest("nonexistent", "password");
-        ResponseEntity<Object> nonExistentResponse = restTemplate.postForEntity(
+        ResponseEntity<Object> nonExistentResponse = restTemplate.exchange(
                 "/auth/login",
-                nonExistentRequest,
+                org.springframework.http.HttpMethod.POST,
+                new org.springframework.http.HttpEntity<>(nonExistentRequest),
                 Object.class
         );
         assertEquals(HttpStatus.UNAUTHORIZED, nonExistentResponse.getStatusCode());
@@ -174,9 +186,10 @@ class AuthServiceWithKafkaIntegrationTest {
         userRepository.save(testUser);
 
         LoginRequest wrongPasswordRequest = new LoginRequest("wrongpassuser", "wrongpassword");
-        ResponseEntity<Object> wrongPasswordResponse = restTemplate.postForEntity(
+        ResponseEntity<Object> wrongPasswordResponse = restTemplate.exchange(
                 "/auth/login",
-                wrongPasswordRequest,
+                org.springframework.http.HttpMethod.POST,
+                new org.springframework.http.HttpEntity<>(wrongPasswordRequest),
                 Object.class
         );
         assertEquals(HttpStatus.UNAUTHORIZED, wrongPasswordResponse.getStatusCode());
@@ -186,18 +199,20 @@ class AuthServiceWithKafkaIntegrationTest {
     void testValidationErrors() {
         // Test missing username
         LoginRequest missingUsernameRequest = new LoginRequest(null, "password");
-        ResponseEntity<Object> missingUsernameResponse = restTemplate.postForEntity(
+        ResponseEntity<Object> missingUsernameResponse = restTemplate.exchange(
                 "/auth/login",
-                missingUsernameRequest,
+                org.springframework.http.HttpMethod.POST,
+                new org.springframework.http.HttpEntity<>(missingUsernameRequest),
                 Object.class
         );
         assertEquals(HttpStatus.BAD_REQUEST, missingUsernameResponse.getStatusCode());
 
         // Test missing password
         LoginRequest missingPasswordRequest = new LoginRequest("username", null);
-        ResponseEntity<Object> missingPasswordResponse = restTemplate.postForEntity(
+        ResponseEntity<Object> missingPasswordResponse = restTemplate.exchange(
                 "/auth/login",
-                missingPasswordRequest,
+                org.springframework.http.HttpMethod.POST,
+                new org.springframework.http.HttpEntity<>(missingPasswordRequest),
                 Object.class
         );
         assertEquals(HttpStatus.BAD_REQUEST, missingPasswordResponse.getStatusCode());

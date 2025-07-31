@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -61,6 +62,16 @@ class AuthServiceIntegrationTest {
         restTemplate.getRestTemplate().setRequestFactory(
             new org.springframework.http.client.SimpleClientHttpRequestFactory()
         );
+        // Configure error handler to not throw exceptions for 4xx responses
+        restTemplate.getRestTemplate().setErrorHandler(
+            new org.springframework.web.client.DefaultResponseErrorHandler() {
+                @Override
+                public boolean hasError(org.springframework.http.client.ClientHttpResponse response) throws java.io.IOException {
+                    // Don't treat 4xx responses as errors for testing
+                    return response.getStatusCode().is5xxServerError();
+                }
+            }
+        );
     }
 
     @DynamicPropertySource
@@ -105,9 +116,10 @@ class AuthServiceIntegrationTest {
     @Test
     void testLoginWithInvalidCredentials() {
         LoginRequest loginRequest = new LoginRequest("nonexistent", "wrongpassword");
-        ResponseEntity<Object> response = restTemplate.postForEntity(
+        ResponseEntity<Object> response = restTemplate.exchange(
                 "/auth/login",
-                loginRequest,
+                org.springframework.http.HttpMethod.POST,
+                new org.springframework.http.HttpEntity<>(loginRequest),
                 Object.class
         );
 
@@ -117,9 +129,10 @@ class AuthServiceIntegrationTest {
     @Test
     void testLoginWithMissingFields() {
         LoginRequest loginRequest = new LoginRequest(null, "password");
-        ResponseEntity<Object> response = restTemplate.postForEntity(
+        ResponseEntity<Object> response = restTemplate.exchange(
                 "/auth/login",
-                loginRequest,
+                org.springframework.http.HttpMethod.POST,
+                new org.springframework.http.HttpEntity<>(loginRequest),
                 Object.class
         );
 
