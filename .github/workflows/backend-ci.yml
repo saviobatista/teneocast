@@ -15,6 +15,11 @@ env:
   JAVA_VERSION: '17'
   GRADLE_VERSION: '8.4'
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
