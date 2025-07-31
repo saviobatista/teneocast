@@ -88,13 +88,7 @@ jobs:
       run: ./gradlew test
       working-directory: backend
       env:
-        SPRING_PROFILES_ACTIVE: test
-        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/teneocast_test
-        SPRING_DATASOURCE_USERNAME: test
-        SPRING_DATASOURCE_PASSWORD: test
-        SPRING_REDIS_HOST: localhost
-        SPRING_REDIS_PORT: 6379
-        SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+        SPRING_PROFILES_ACTIVE: ci
 
     - name: Generate test report
       uses: dorny/test-reporter@v1
