@@ -81,27 +81,21 @@ Infrastructure:
 
 3. **Choose your development mode**
 
-   **🐳 Docker Mode (Recommended)**
+   **🐳 Docker Mode (Infrastructure Only)**
    ```bash
-   # Start everything in containers
-   ./scripts/docker-dev.sh start all
+   # Start infrastructure services in containers
+   docker compose -f docker-compose.dev.yml up -d
    
-   # Or start components separately
-   ./scripts/docker-dev.sh start infrastructure
-   ./scripts/docker-dev.sh start frontend
+   # Run Flutter apps locally
+   cd apps/studio && flutter run -d chrome
+   cd apps/console && flutter run -d chrome  
+   cd apps/player && flutter run -d chrome
    ```
 
-   **🖥️ Local Mode**
+   **🖥️ Quick Setup**
    ```bash
-   # Start infrastructure services
-   docker-compose up -d postgres redis minio
-   
-   # Run backend services locally
-   cd backend
-   ./gradlew bootRun
-   
-   # Run frontend applications locally
-   ./scripts/dev/start-frontend.sh
+   # Use the development setup script
+   ./scripts/dev-setup.sh
    ```
 
 4. **Access the applications**
