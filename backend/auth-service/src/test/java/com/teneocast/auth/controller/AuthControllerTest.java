@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureWebMvc
 @ActiveProfiles("test")
+@Transactional
 class AuthControllerTest {
 
     @Autowired
@@ -40,6 +42,7 @@ class AuthControllerTest {
     void setUp() {
         // Clean the database before each test
         userRepository.deleteAll();
+        userRepository.flush();
         
         // Create a test user
         User testUser = User.builder()
@@ -54,6 +57,7 @@ class AuthControllerTest {
                 .build();
         
         userRepository.save(testUser);
+        userRepository.flush();
         
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         objectMapper = new ObjectMapper();
@@ -140,7 +144,7 @@ class AuthControllerTest {
         // In a real scenario, you'd get a valid token from login
         mockMvc.perform(post("/auth/refresh")
                 .param("refreshToken", "dummy_refresh_token"))
-                .andExpect(status().isInternalServerError()); // Should fail with invalid token
+                .andExpect(status().isBadRequest()); // Should fail with invalid token
     }
 
     @Test

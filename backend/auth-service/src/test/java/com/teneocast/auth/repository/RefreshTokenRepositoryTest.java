@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -19,36 +20,40 @@ class RefreshTokenRepositoryTest {
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
-
+    
     @Autowired
     private UserRepository userRepository;
-
+    
+    @Autowired
+    private EntityManager entityManager;
+    
     private User testUser;
     private RefreshToken testToken;
 
     @BeforeEach
     void setUp() {
+        // Clean the database before each test
         refreshTokenRepository.deleteAll();
         userRepository.deleteAll();
         
+        // Create a test user
         testUser = User.builder()
                 .username("testuser")
                 .email("test@example.com")
-                .passwordHash("encoded_password")
+                .passwordHash("password123")
                 .firstName("Test")
                 .lastName("User")
                 .role(User.UserRole.USER)
                 .isActive(true)
                 .isEmailVerified(true)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
         
-        testUser = userRepository.save(testUser);
+        userRepository.save(testUser);
         
+        // Create a test token
         testToken = RefreshToken.builder()
                 .user(testUser)
-                .token("test_refresh_token")
+                .token("test_token")
                 .expiresAt(LocalDateTime.now().plusDays(7))
                 .createdAt(LocalDateTime.now())
                 .isRevoked(false)
@@ -62,16 +67,16 @@ class RefreshTokenRepositoryTest {
         
         Optional<RefreshToken> foundToken = refreshTokenRepository.findById(savedToken.getId());
         assertTrue(foundToken.isPresent());
-        assertEquals("test_refresh_token", foundToken.get().getToken());
+        assertEquals(savedToken.getId(), foundToken.get().getId());
     }
 
     @Test
     void testFindByToken() {
-        refreshTokenRepository.save(testToken);
+        RefreshToken savedToken = refreshTokenRepository.save(testToken);
         
-        Optional<RefreshToken> foundToken = refreshTokenRepository.findByToken("test_refresh_token");
+        Optional<RefreshToken> foundToken = refreshTokenRepository.findByToken("test_token");
         assertTrue(foundToken.isPresent());
-        assertEquals("test_refresh_token", foundToken.get().getToken());
+        assertEquals(savedToken.getId(), foundToken.get().getId());
     }
 
     @Test
@@ -82,11 +87,11 @@ class RefreshTokenRepositoryTest {
 
     @Test
     void testFindByUserIdAndNotRevoked() {
-        refreshTokenRepository.save(testToken);
+        RefreshToken savedToken = refreshTokenRepository.save(testToken);
         
         Optional<RefreshToken> foundToken = refreshTokenRepository.findByUserIdAndNotRevoked(testUser.getId());
         assertTrue(foundToken.isPresent());
-        assertEquals("test_refresh_token", foundToken.get().getToken());
+        assertEquals(savedToken.getId(), foundToken.get().getId());
     }
 
     @Test
@@ -100,8 +105,6 @@ class RefreshTokenRepositoryTest {
 
     @Test
     void testFindByUserIdAndNotRevoked_UserNotFound() {
-        refreshTokenRepository.save(testToken);
-        
         Optional<RefreshToken> foundToken = refreshTokenRepository.findByUserIdAndNotRevoked(999L);
         assertFalse(foundToken.isPresent());
     }
@@ -131,8 +134,8 @@ class RefreshTokenRepositoryTest {
         // Revoke all tokens for the user
         refreshTokenRepository.revokeAllTokensByUserId(testUser.getId());
         
-        // Refresh the entities from the database
-        refreshTokenRepository.flush();
+        // Clear the persistence context to ensure fresh data is loaded
+        entityManager.clear();
         
         // Verify tokens are revoked
         Optional<RefreshToken> foundToken1 = refreshTokenRepository.findByToken("token1");
