@@ -46,8 +46,8 @@ public class Tenant {
     @Builder.Default
     private TenantStatus status = TenantStatus.ACTIVE;
     
-    @Column(columnDefinition = "jsonb")
-    private String preferences;
+               @Column
+           private String preferences;
     
     @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<TenantUser> users;

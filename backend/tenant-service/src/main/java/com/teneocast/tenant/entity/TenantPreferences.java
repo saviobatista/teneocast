@@ -33,15 +33,15 @@ public class TenantPreferences {
     private Tenant tenant;
     
     @Builder.Default
-    @Column(columnDefinition = "jsonb NOT NULL DEFAULT '{}'")
+    @Column(nullable = false)
     private String playbackSettings = "{}";
     
     @Builder.Default
-    @Column(columnDefinition = "jsonb NOT NULL DEFAULT '[]'")
+    @Column(nullable = false)
     private String genrePreferences = "[]";
     
     @Builder.Default
-    @Column(columnDefinition = "jsonb NOT NULL DEFAULT '{}'")
+    @Column(nullable = false)
     private String adRules = "{}";
     
     @Builder.Default
