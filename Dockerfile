@@ -69,6 +69,9 @@ COPY --from=studio-build /app/studio/build/web /usr/share/nginx/html/studio
 COPY --from=console-build /app/console/build/web /usr/share/nginx/html/console
 COPY --from=player-build /app/player/build/web /usr/share/nginx/html/player
 
+# Copy home page
+COPY apps/index.html /usr/share/nginx/html/index.html
+
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
