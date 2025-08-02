@@ -1,0 +1,43 @@
+meta {
+  name: Create Player
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/players
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tenantId": "{{tenantId}}",
+    "name": "Test Player",
+    "platform": "WEB",
+    "capabilities": ["AUDIO_PLAYBACK", "REMOTE_CONTROL", "TTS_PLAYBACK"]
+  }
+}
+
+tests {
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Player created with correct data", function() {
+    const player = res.getBody();
+    expect(player).to.have.property('id');
+    expect(player.name).to.equal('Test Player');
+    expect(player.platform).to.equal('WEB');
+    expect(player.tenantId).to.equal(bru.getEnvVar('tenantId'));
+  });
+  
+  // Store the created player ID for use in other requests
+  if (res.getStatus() === 200) {
+    bru.setEnvVar('playerId', res.getBody().id);
+  }
+}

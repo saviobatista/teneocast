@@ -1,0 +1,27 @@
+meta {
+  name: Health Check
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/health
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response contains status", function() {
+    expect(res.getBody()).to.have.property('status');
+    expect(res.getBody().status).to.equal('UP');
+  });
+  
+  test("Response contains service name", function() {
+    expect(res.getBody()).to.have.property('service');
+    expect(res.getBody().service).to.equal('player-service');
+  });
+}
