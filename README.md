@@ -53,10 +53,10 @@ Infrastructure:
 
 ### Prerequisites
 
-- **Java 17+** - [Download from Adoptium](https://adoptium.net/)
-- **Flutter 3.10+** - [Install Flutter](https://flutter.dev/docs/get-started/install)
 - **Docker & Docker Compose** - [Install Docker](https://docs.docker.com/get-docker/)
-- **Node.js 18+** (for tooling) - [Download Node.js](https://nodejs.org/)
+- **Git** - [Install Git](https://git-scm.com/downloads)
+
+*Note: Java, Flutter, and Node.js are not required locally as all services run in Docker containers.*
 
 ### Local Development
 
@@ -68,68 +68,73 @@ Infrastructure:
 
 2. **Verify your setup**
    ```bash
-   # Check Flutter installation
-   flutter doctor
-   
-   # Check Java version
-   java -version
-   
-   # Check Docker
+   # Check Docker installation
    docker --version
-   docker-compose --version
-   ```
-
-3. **Choose your development mode**
-
-   **🐳 Docker Mode (Infrastructure Only)**
-   ```bash
-   # Start infrastructure services in containers
-   docker compose -f docker-compose.dev.yml up -d
+   docker compose version
    
-   # Run Flutter apps locally
-   cd apps/studio && flutter run -d chrome
-   cd apps/console && flutter run -d chrome  
-   cd apps/player && flutter run -d chrome
+   # Ensure Docker daemon is running
+   docker info
    ```
 
-   **🖥️ Quick Setup**
+3. **Start the complete environment**
    ```bash
-   # Use the development setup script
-   ./scripts/dev-setup.sh
+   # Start all services (frontend, backend, and infrastructure)
+   docker compose up -d
+   
+   # View logs for all services
+   docker compose logs -f
+   
+   # Stop all services
+   docker compose down
    ```
+
+   **What's included:**
+   - ✅ PostgreSQL database with automatic migrations
+   - ✅ Redis cache
+   - ✅ MinIO (S3-compatible storage)
+   - ✅ Frontend applications (Player, Studio, Console)
+   - ✅ Auth Service (user authentication)
+   - 🚧 Additional backend services (in development)
 
 4. **Access the applications**
-   - **Player (Web)**: http://localhost:3000
-   - **Studio**: http://localhost:3001
-   - **Console**: http://localhost:3002
-   - **Backend API**: http://localhost:8080
+   - **Frontend Applications**: http://localhost:3000
+     - Player, Studio, and Console are served from the same frontend container
+   - **Auth Service API**: http://localhost:8081
+   - **MinIO Console**: http://localhost:9001 (admin: teneocast/teneocast_dev)
+   - **PostgreSQL**: localhost:5432 (user: teneocast/teneocast_dev)
+   - **Redis**: localhost:6379
 
 ### 🚨 Troubleshooting
 
 **Common Issues:**
 
-1. **Flutter not found**
+1. **Port conflicts**
    ```bash
-   export PATH="$PATH:$HOME/flutter/bin"
-   ```
-
-2. **Port conflicts**
-   ```bash
-   # Check what's using port 8080
-   lsof -i :8080
+   # Check what's using ports
+   lsof -i :3000  # Frontend
+   lsof -i :8081  # Auth service
+   lsof -i :5432  # PostgreSQL
    # Kill the process or change ports in docker-compose.yml
    ```
 
-3. **Docker permission issues**
+2. **Docker permission issues**
    ```bash
    sudo usermod -aG docker $USER
    # Log out and back in
    ```
 
-4. **Java version mismatch**
+3. **Services not starting**
    ```bash
-   # Set JAVA_HOME
-   export JAVA_HOME=/path/to/java17
+   # Check service health
+   docker compose ps
+   # Check logs for specific service
+   docker compose logs auth-service
+   ```
+
+4. **Database connection issues**
+   ```bash
+   # Restart PostgreSQL and dependent services
+   docker compose restart postgres auth-service
    ```
 
 **Getting Help:**
@@ -189,8 +194,8 @@ All frontend applications use Flutter with:
 ## 🚢 Deployment
 
 ### Development
-- **Docker Compose**: Full containerized development environment
-- **Local Development**: Mix of containerized infrastructure and local apps
+- **Docker Compose**: Complete containerized development environment with all services
+- **Single Command Setup**: Everything runs with `docker compose up -d`
 
 ### Production
 - **Backend**: AWS Fargate + RDS + ElastiCache
@@ -200,20 +205,27 @@ All frontend applications use Flutter with:
 ### Docker Commands
 
 ```bash
-# Full environment
-./scripts/docker-dev.sh start all
+# Start all services
+docker compose up -d
 
-# Frontend only
-./scripts/docker-dev.sh start frontend
-
-# Infrastructure only  
-./scripts/docker-dev.sh start infrastructure
+# Start specific services
+docker compose up -d postgres redis minio  # Infrastructure only
+docker compose up -d frontend auth-service  # App services only
 
 # View logs
-./scripts/docker-dev.sh logs studio
+docker compose logs -f                    # All services
+docker compose logs -f frontend          # Specific service
+docker compose logs -f auth-service      # Auth service logs
 
-# Clean up
-./scripts/docker-dev.sh clean
+# Rebuild and restart services
+docker compose up -d --build
+
+# Stop services
+docker compose down                       # Stop all
+docker compose stop frontend             # Stop specific service
+
+# Clean up (remove containers, networks, and volumes)
+docker compose down -v --remove-orphans
 ```
 
 ## 📖 Documentation
