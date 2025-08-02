@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    
+  flyway:
+    enabled: false
+    
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# Disable scheduling in tests
+spring.task.scheduling.enabled: false
+
+# WebSocket Configuration for tests
+websocket:
+  allowed-origins: "*"
+  heartbeat-interval: 5000
+  connection-timeout: 30000
+
+# Player Configuration for tests
+player:
+  pairing:
+    code-expiry: 60 # 1 minute for faster tests
+    code-length: 4 # Shorter codes for tests
+  session:
+    timeout: 300 # 5 minutes for tests
+
+logging:
+  level:
+    com.teneocast.player: DEBUG
+    org.springframework.web.socket: DEBUG
