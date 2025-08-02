@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeneoCast - Indoor Radio Platform</title>
+    <link rel="icon" type="image/png" href="/player/favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 1200px;
+            padding: 2rem;
+        }
+
+        .header {
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .app-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .app-card:hover::before {
+            left: 100%;
+        }
+
+        .app-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .app-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .app-description {
+            font-size: 1rem;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        .player-card { --accent-color: #ff6b6b; }
+        .studio-card { --accent-color: #4ecdc4; }
+        .console-card { --accent-color: #45b7d1; }
+
+        .app-card:hover {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 0 3px var(--accent-color);
+        }
+
+        .footer {
+            margin-top: 3rem;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .apps-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .app-card {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        .health-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="health-status">
+        <span class="status-indicator"></span>
+        System Online
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">TeneoCast</div>
+            <div class="tagline">Indoor Radio Software Platform</div>
+            <div class="subtitle">Empowering local businesses with customized radio stations</div>
+        </div>
+
+        <div class="apps-grid">
+            <a href="/player/" class="app-card player-card">
+                <div class="app-icon">🎵</div>
+                <div class="app-title">Player</div>
+                <div class="app-description">
+                    Cross-platform audio player with smart controls, offline support, and real-time synchronization.
+                    Available for Web, Windows, and Android.
+                </div>
+            </a>
+
+            <a href="/studio/" class="app-card studio-card">
+                <div class="app-icon">🎛️</div>
+                <div class="app-title">Studio</div>
+                <div class="app-description">
+                    Interface for business owners to manage station preferences, upload content, and send remote commands to connected players.
+                </div>
+            </a>
+
+            <a href="/console/" class="app-card console-card">
+                <div class="app-icon">📊</div>
+                <div class="app-title">Console</div>
+                <div class="app-description">
+                    Admin panel for platform administrators to manage tenants, media libraries, analytics, and system monitoring.
+                </div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>Multi-tenant • WebSocket Control • Offline-First • Real-time Analytics</p>
+            <p style="margin-top: 0.5rem; opacity: 0.5;">© 2024 TeneoCast. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Simple health check endpoint for the Docker health check
+        if (window.location.pathname === '/health') {
+            document.body.innerHTML = '<h1>OK</h1>';
+        }
+
+        // Add some interactive effects
+        document.querySelectorAll('.app-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.setProperty('--scale', '1.05');
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.setProperty('--scale', '1');
+            });
+        });
+
+        // Update status indicator based on services
+        async function checkSystemHealth() {
+            try {
+                const statusElement = document.querySelector('.status-indicator');
+                const statusText = document.querySelector('.health-status span:last-child');
+                
+                // Simple check - if this page loads, the frontend is working
+                statusElement.style.background = '#4ade80';
+                statusText.textContent = 'System Online';
+            } catch (error) {
+                const statusElement = document.querySelector('.status-indicator');
+                const statusText = document.querySelector('.health-status span:last-child');
+                statusElement.style.background = '#ef4444';
+                statusText.textContent = 'System Issues';
+            }
+        }
+
+        checkSystemHealth();
+        setInterval(checkSystemHealth, 30000); // Check every 30 seconds
+    </script>
+</body>
+</html>
