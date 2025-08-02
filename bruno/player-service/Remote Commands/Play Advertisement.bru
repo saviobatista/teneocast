@@ -1,0 +1,42 @@
+meta {
+  name: Play Advertisement
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/player/{{playerId}}/play-ad
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "adId": "ad-123",
+    "audioUrl": "https://example.com/ads/sample-ad.mp3",
+    "duration": 30
+  }
+}
+
+tests {
+  test("Status is 200 or 400", function() {
+    expect([200, 400]).to.include(res.getStatus());
+  });
+  
+  test("Response contains success field", function() {
+    const response = res.getBody();
+    expect(response).to.have.property('success');
+  });
+  
+  if (res.getStatus() === 200) {
+    test("Ad command sent successfully", function() {
+      const response = res.getBody();
+      expect(response.success).to.be.true;
+      expect(response).to.have.property('messageId');
+    });
+  }
+}

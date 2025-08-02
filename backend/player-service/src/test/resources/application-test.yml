@@ -1,0 +1,49 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+    
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: false
+    defer-datasource-initialization: true
+    
+  sql:
+    init:
+      mode: never
+      
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        enabled: false
+    
+  flyway:
+    enabled: false
+    
+  main:
+    allow-bean-definition-overriding: true
+
+server:
+  port: 0
+
+logging:
+  level:
+    com.teneocast.player: WARN
+    org.springframework: WARN
+    org.hibernate: WARN
+    root: WARN
+
+player:
+  pairing:
+    code-length: 6
+    code-expiry: 300

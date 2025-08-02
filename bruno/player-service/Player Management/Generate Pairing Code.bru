@@ -1,0 +1,29 @@
+meta {
+  name: Generate Pairing Code
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/players/{{playerId}}/pairing-code
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Pairing code is returned", function() {
+    const response = res.getBody();
+    expect(response).to.have.property('pairingCode');
+    expect(response.pairingCode).to.be.a('string');
+    expect(response.pairingCode.length).to.be.greaterThan(0);
+  });
+  
+  // Store pairing code for use in other tests
+  if (res.getStatus() === 200) {
+    bru.setEnvVar('pairingCode', res.getBody().pairingCode);
+  }
+}

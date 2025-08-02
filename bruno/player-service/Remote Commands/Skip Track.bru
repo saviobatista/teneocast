@@ -1,0 +1,22 @@
+meta {
+  name: Skip Track
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/player/{{playerId}}/skip
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status is 200 or 400", function() {
+    expect([200, 400]).to.include(res.getStatus());
+  });
+  
+  test("Response contains success field", function() {
+    const response = res.getBody();
+    expect(response).to.have.property('success');
+  });
+}

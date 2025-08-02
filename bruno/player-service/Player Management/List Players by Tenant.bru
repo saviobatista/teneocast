@@ -1,0 +1,29 @@
+meta {
+  name: List Players by Tenant
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/players?tenantId={{tenantId}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Returns array of players", function() {
+    const players = res.getBody();
+    expect(Array.isArray(players)).to.be.true;
+  });
+  
+  test("All players belong to correct tenant", function() {
+    const players = res.getBody();
+    players.forEach(player => {
+      expect(player.tenantId).to.equal(bru.getEnvVar('tenantId'));
+    });
+  });
+}

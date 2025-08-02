@@ -1,0 +1,29 @@
+meta {
+  name: Get Online Players
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/players/online?tenantId={{tenantId}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Returns array of online players", function() {
+    const players = res.getBody();
+    expect(Array.isArray(players)).to.be.true;
+  });
+  
+  test("All returned players are online", function() {
+    const players = res.getBody();
+    players.forEach(player => {
+      expect(player.isOnline).to.be.true;
+    });
+  });
+}

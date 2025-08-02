@@ -1,0 +1,25 @@
+meta {
+  name: Get Player by ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/players/{{playerId}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Player data is returned", function() {
+    const player = res.getBody();
+    expect(player).to.have.property('id');
+    expect(player).to.have.property('name');
+    expect(player).to.have.property('platform');
+    expect(player).to.have.property('tenantId');
+  });
+}
