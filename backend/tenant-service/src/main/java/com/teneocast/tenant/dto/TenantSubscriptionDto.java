@@ -14,19 +14,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TenantUserDto {
+public class TenantSubscriptionDto {
     
     private String id;
-    
     private String tenantId;
-    
-    private String email;
-    
-    private String password;
-    
-    private UserRole role;
-    
+    private PlanType planType;
+    private String planName;
+    private Integer maxUsers;
+    private Integer maxStorageGb;
     private Boolean isActive;
+    private BillingCycle billingCycle;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime nextBillingDate;
     
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
@@ -34,10 +34,11 @@ public class TenantUserDto {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
     
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime lastLoginAt;
+    public enum PlanType {
+        BASIC, PREMIUM, ENTERPRISE
+    }
     
-    public enum UserRole {
-        MASTER, PRODUCER, MANAGER
+    public enum BillingCycle {
+        MONTHLY, QUARTERLY, YEARLY
     }
 } 

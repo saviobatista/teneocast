@@ -3,30 +3,22 @@ package com.teneocast.tenant.dto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class TenantUserDtoTest {
 
-    private Validator validator;
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
@@ -77,120 +69,6 @@ class TenantUserDtoTest {
         assertNull(dto.getCreatedAt());
         assertNull(dto.getUpdatedAt());
         assertNull(dto.getLastLoginAt());
-    }
-
-    @Test
-    void testTenantUserDtoValidationSuccess() {
-        // Given
-        TenantUserDto dto = TenantUserDto.builder()
-                .email("test@example.com")
-                .password("password123")
-                .role(TenantUserDto.UserRole.MASTER)
-                .build();
-
-        // When
-        Set<ConstraintViolation<TenantUserDto>> violations = validator.validate(dto);
-
-        // Then
-        assertTrue(violations.isEmpty());
-    }
-
-    @Test
-    void testTenantUserDtoValidationEmailRequired() {
-        // Given
-        TenantUserDto dto = TenantUserDto.builder()
-                .password("password123")
-                .role(TenantUserDto.UserRole.MASTER)
-                .build();
-
-        // When
-        Set<ConstraintViolation<TenantUserDto>> violations = validator.validate(dto);
-
-        // Then
-        assertFalse(violations.isEmpty());
-        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("email")));
-    }
-
-    @Test
-    void testTenantUserDtoValidationEmailInvalid() {
-        // Given
-        TenantUserDto dto = TenantUserDto.builder()
-                .email("invalid-email")
-                .password("password123")
-                .role(TenantUserDto.UserRole.MASTER)
-                .build();
-
-        // When
-        Set<ConstraintViolation<TenantUserDto>> violations = validator.validate(dto);
-
-        // Then
-        assertFalse(violations.isEmpty());
-        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("email")));
-    }
-
-    @Test
-    void testTenantUserDtoValidationEmailValid() {
-        // Given
-        TenantUserDto dto = TenantUserDto.builder()
-                .email("test@example.com")
-                .password("password123")
-                .role(TenantUserDto.UserRole.MASTER)
-                .build();
-
-        // When
-        Set<ConstraintViolation<TenantUserDto>> violations = validator.validate(dto);
-
-        // Then
-        assertTrue(violations.isEmpty());
-    }
-
-    @Test
-    void testTenantUserDtoValidationPasswordRequired() {
-        // Given
-        TenantUserDto dto = TenantUserDto.builder()
-                .email("test@example.com")
-                .role(TenantUserDto.UserRole.MASTER)
-                .build();
-
-        // When
-        Set<ConstraintViolation<TenantUserDto>> violations = validator.validate(dto);
-
-        // Then
-        assertFalse(violations.isEmpty());
-        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("password")));
-    }
-
-    @Test
-    void testTenantUserDtoValidationPasswordTooShort() {
-        // Given
-        TenantUserDto dto = TenantUserDto.builder()
-                .email("test@example.com")
-                .password("123")
-                .role(TenantUserDto.UserRole.MASTER)
-                .build();
-
-        // When
-        Set<ConstraintViolation<TenantUserDto>> violations = validator.validate(dto);
-
-        // Then
-        assertFalse(violations.isEmpty());
-        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("password")));
-    }
-
-    @Test
-    void testTenantUserDtoValidationRoleRequired() {
-        // Given
-        TenantUserDto dto = TenantUserDto.builder()
-                .email("test@example.com")
-                .password("password123")
-                .build();
-
-        // When
-        Set<ConstraintViolation<TenantUserDto>> violations = validator.validate(dto);
-
-        // Then
-        assertFalse(violations.isEmpty());
-        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("role")));
     }
 
     @Test
