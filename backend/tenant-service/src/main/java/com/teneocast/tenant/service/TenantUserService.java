@@ -1,6 +1,8 @@
 package com.teneocast.tenant.service;
 
+import com.teneocast.tenant.dto.CreateUserRequest;
 import com.teneocast.tenant.dto.TenantUserDto;
+import com.teneocast.tenant.dto.UpdateUserRequest;
 import com.teneocast.tenant.entity.Tenant;
 import com.teneocast.tenant.entity.TenantUser;
 import com.teneocast.tenant.exception.TenantNotFoundException;
@@ -33,7 +35,7 @@ public class TenantUserService {
     /**
      * Create a new tenant user
      */
-    public TenantUserDto createTenantUser(String tenantId, TenantUserDto request) {
+    public TenantUserDto createTenantUser(String tenantId, CreateUserRequest request) {
         log.info("Creating user for tenant: {}", tenantId);
         
         // Validate tenant exists
@@ -83,7 +85,7 @@ public class TenantUserService {
     /**
      * Update user
      */
-    public TenantUserDto updateUser(String tenantId, String userId, TenantUserDto request) {
+    public TenantUserDto updateUser(String tenantId, String userId, UpdateUserRequest request) {
         log.info("Updating user with ID: {} for tenant: {}", userId, tenantId);
         
         TenantUser user = tenantUserRepository.findById(userId)
@@ -230,7 +232,7 @@ public class TenantUserService {
     /**
      * Validate create user request
      */
-    private void validateCreateUserRequest(TenantUserDto request) {
+    private void validateCreateUserRequest(CreateUserRequest request) {
         if (request == null) {
             throw new TenantValidationException("Create user request cannot be null");
         }
@@ -247,7 +249,7 @@ public class TenantUserService {
     /**
      * Validate update user request
      */
-    private void validateUpdateUserRequest(TenantUserDto request) {
+    private void validateUpdateUserRequest(UpdateUserRequest request) {
         if (request == null) {
             throw new TenantValidationException("Update user request cannot be null");
         }
@@ -264,7 +266,7 @@ public class TenantUserService {
     /**
      * Map entity to DTO
      */
-    private TenantUserDto mapToDto(TenantUser user) {
+    public TenantUserDto mapToDto(TenantUser user) {
         return TenantUserDto.builder()
                 .id(user.getId())
                 .tenantId(user.getTenant().getId())

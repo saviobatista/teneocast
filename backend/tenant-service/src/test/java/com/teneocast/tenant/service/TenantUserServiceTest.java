@@ -1,6 +1,8 @@
 package com.teneocast.tenant.service;
 
+import com.teneocast.tenant.dto.CreateUserRequest;
 import com.teneocast.tenant.dto.TenantUserDto;
+import com.teneocast.tenant.dto.UpdateUserRequest;
 import com.teneocast.tenant.entity.Tenant;
 import com.teneocast.tenant.entity.TenantUser;
 import com.teneocast.tenant.exception.TenantNotFoundException;
@@ -48,8 +50,8 @@ class TenantUserServiceTest {
 
     private Tenant testTenant;
     private TenantUser testUser;
-    private TenantUserDto createUserRequest;
-    private TenantUserDto updateUserRequest;
+    private CreateUserRequest createUserRequest;
+    private UpdateUserRequest updateUserRequest;
 
     @BeforeEach
     void setUp() {
@@ -71,13 +73,13 @@ class TenantUserServiceTest {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        createUserRequest = TenantUserDto.builder()
+        createUserRequest = CreateUserRequest.builder()
                 .email("newuser@example.com")
                 .password("password123")
                 .role(TenantUserDto.UserRole.MASTER)
                 .build();
 
-        updateUserRequest = TenantUserDto.builder()
+        updateUserRequest = UpdateUserRequest.builder()
                 .email("updated@example.com")
                 .role(TenantUserDto.UserRole.PRODUCER)
                 .isActive(true)
@@ -100,6 +102,9 @@ class TenantUserServiceTest {
         assertNotNull(result);
         assertEquals(testUser.getId(), result.getId());
         assertEquals(testUser.getEmail(), result.getEmail());
+        assertEquals(testUser.getRole().name(), result.getRole().name());
+        assertTrue(result.getIsActive());
+
         verify(tenantRepository).findById(testTenant.getId());
         verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), createUserRequest.getEmail());
         verify(passwordEncoder).encode(createUserRequest.getPassword());
@@ -113,8 +118,9 @@ class TenantUserServiceTest {
 
         // When & Then
         assertThrows(TenantNotFoundException.class, () -> tenantUserService.createTenantUser(testTenant.getId(), createUserRequest));
+
         verify(tenantRepository).findById(testTenant.getId());
-        verify(tenantUserRepository, never()).save(any(TenantUser.class));
+        verify(tenantUserRepository, never()).save(any());
     }
 
     @Test
@@ -126,34 +132,39 @@ class TenantUserServiceTest {
 
         // When & Then
         assertThrows(TenantValidationException.class, () -> tenantUserService.createTenantUser(testTenant.getId(), createUserRequest));
+
         verify(tenantRepository).findById(testTenant.getId());
         verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), createUserRequest.getEmail());
-        verify(tenantUserRepository, never()).save(any(TenantUser.class));
+        verify(tenantUserRepository, never()).save(any());
     }
 
     @Test
     void testGetUserByEmail_Success() {
         // Given
-        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail())).thenReturn(Optional.of(testUser));
+        String email = "test@example.com";
+        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), email)).thenReturn(Optional.of(testUser));
 
         // When
-        TenantUserDto result = tenantUserService.getUserByEmail(testTenant.getId(), testUser.getEmail());
+        TenantUserDto result = tenantUserService.getUserByEmail(testTenant.getId(), email);
 
         // Then
         assertNotNull(result);
         assertEquals(testUser.getId(), result.getId());
         assertEquals(testUser.getEmail(), result.getEmail());
-        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail());
+
+        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), email);
     }
 
     @Test
     void testGetUserByEmail_NotFound() {
         // Given
-        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail())).thenReturn(Optional.empty());
+        String email = "nonexistent@example.com";
+        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), email)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(TenantNotFoundException.class, () -> tenantUserService.getUserByEmail(testTenant.getId(), testUser.getEmail()));
-        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail());
+        assertThrows(TenantNotFoundException.class, () -> tenantUserService.getUserByEmail(testTenant.getId(), email));
+
+        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), email);
     }
 
     @Test
@@ -170,7 +181,9 @@ class TenantUserServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(testUser.getId(), result.getId());
+
         verify(tenantUserRepository).findById(testUser.getId());
+        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), updateUserRequest.getEmail());
         verify(tenantUserRepository).save(any(TenantUser.class));
     }
 
@@ -181,44 +194,49 @@ class TenantUserServiceTest {
 
         // When & Then
         assertThrows(TenantNotFoundException.class, () -> tenantUserService.updateUser(testTenant.getId(), testUser.getId(), updateUserRequest));
+
         verify(tenantUserRepository).findById(testUser.getId());
-        verify(tenantUserRepository, never()).save(any(TenantUser.class));
+        verify(tenantUserRepository, never()).save(any());
     }
 
     @Test
     void testUpdateUser_WrongTenant() {
         // Given
-        Tenant wrongTenant = Tenant.builder().id(UUID.randomUUID().toString()).build();
-        TenantUser userWithWrongTenant = TenantUser.builder()
-                .id(testUser.getId())
-                .tenant(wrongTenant)
-                .build();
-        when(tenantUserRepository.findById(testUser.getId())).thenReturn(Optional.of(userWithWrongTenant));
+        String wrongTenantId = UUID.randomUUID().toString();
+        when(tenantUserRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
         // When & Then
-        assertThrows(TenantNotFoundException.class, () -> tenantUserService.updateUser(testTenant.getId(), testUser.getId(), updateUserRequest));
+        assertThrows(TenantNotFoundException.class, () -> tenantUserService.updateUser(wrongTenantId, testUser.getId(), updateUserRequest));
+
         verify(tenantUserRepository).findById(testUser.getId());
-        verify(tenantUserRepository, never()).save(any(TenantUser.class));
+        verify(tenantUserRepository, never()).save(any());
     }
 
     @Test
     void testUpdateUser_DuplicateEmail() {
         // Given
+        TenantUser existingUser = TenantUser.builder()
+                .id(UUID.randomUUID().toString())
+                .tenant(testTenant)
+                .email(updateUserRequest.getEmail())
+                .build();
         when(tenantUserRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
-        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), updateUserRequest.getEmail())).thenReturn(Optional.of(testUser));
+        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), updateUserRequest.getEmail())).thenReturn(Optional.of(existingUser));
         when(tenantValidationService.isValidEmail(updateUserRequest.getEmail())).thenReturn(true);
 
         // When & Then
         assertThrows(TenantValidationException.class, () -> tenantUserService.updateUser(testTenant.getId(), testUser.getId(), updateUserRequest));
+
         verify(tenantUserRepository).findById(testUser.getId());
         verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), updateUserRequest.getEmail());
-        verify(tenantUserRepository, never()).save(any(TenantUser.class));
+        verify(tenantUserRepository, never()).save(any());
     }
 
     @Test
     void testDeleteUser_Success() {
         // Given
         when(tenantUserRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+        doNothing().when(tenantUserRepository).delete(testUser);
 
         // When
         tenantUserService.deleteUser(testTenant.getId(), testUser.getId());
@@ -235,31 +253,29 @@ class TenantUserServiceTest {
 
         // When & Then
         assertThrows(TenantNotFoundException.class, () -> tenantUserService.deleteUser(testTenant.getId(), testUser.getId()));
+
         verify(tenantUserRepository).findById(testUser.getId());
-        verify(tenantUserRepository, never()).delete(any(TenantUser.class));
+        verify(tenantUserRepository, never()).delete(any());
     }
 
     @Test
     void testDeleteUser_WrongTenant() {
         // Given
-        Tenant wrongTenant = Tenant.builder().id(UUID.randomUUID().toString()).build();
-        TenantUser userWithWrongTenant = TenantUser.builder()
-                .id(testUser.getId())
-                .tenant(wrongTenant)
-                .build();
-        when(tenantUserRepository.findById(testUser.getId())).thenReturn(Optional.of(userWithWrongTenant));
+        String wrongTenantId = UUID.randomUUID().toString();
+        when(tenantUserRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
         // When & Then
-        assertThrows(TenantNotFoundException.class, () -> tenantUserService.deleteUser(testTenant.getId(), testUser.getId()));
+        assertThrows(TenantNotFoundException.class, () -> tenantUserService.deleteUser(wrongTenantId, testUser.getId()));
+
         verify(tenantUserRepository).findById(testUser.getId());
-        verify(tenantUserRepository, never()).delete(any(TenantUser.class));
+        verify(tenantUserRepository, never()).delete(any());
     }
 
     @Test
     void testGetUsersByTenantId_Success() {
         // Given
         Pageable pageable = PageRequest.of(0, 10);
-        Page<TenantUser> userPage = new PageImpl<>(List.of(testUser), pageable, 1);
+        Page<TenantUser> userPage = new PageImpl<>(List.of(testUser));
         when(tenantUserRepository.findByTenantId(testTenant.getId(), pageable)).thenReturn(userPage);
 
         // When
@@ -269,6 +285,7 @@ class TenantUserServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals(testUser.getId(), result.getContent().get(0).getId());
+
         verify(tenantUserRepository).findByTenantId(testTenant.getId(), pageable);
     }
 
@@ -285,6 +302,7 @@ class TenantUserServiceTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(testUser.getId(), result.get(0).getId());
+
         verify(tenantUserRepository).findByTenantIdAndRole(testTenant.getId(), role);
     }
 
@@ -300,6 +318,7 @@ class TenantUserServiceTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(testUser.getId(), result.get(0).getId());
+
         verify(tenantUserRepository).findByTenantIdAndIsActive(testTenant.getId(), true);
     }
 
@@ -313,6 +332,7 @@ class TenantUserServiceTest {
 
         // Then
         assertEquals(5L, result);
+
         verify(tenantUserRepository).countByTenantId(testTenant.getId());
     }
 
@@ -326,99 +346,109 @@ class TenantUserServiceTest {
 
         // Then
         assertEquals(3L, result);
+
         verify(tenantUserRepository).countByTenantIdAndIsActive(testTenant.getId(), true);
     }
 
     @Test
     void testExistsByEmail_Success() {
         // Given
-        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail())).thenReturn(Optional.of(testUser));
+        String email = "test@example.com";
+        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), email)).thenReturn(Optional.of(testUser));
 
         // When
-        boolean result = tenantUserService.existsByEmail(testTenant.getId(), testUser.getEmail());
+        boolean result = tenantUserService.existsByEmail(testTenant.getId(), email);
 
         // Then
         assertTrue(result);
-        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail());
+
+        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), email);
     }
 
     @Test
     void testExistsByEmail_NotFound() {
         // Given
-        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail())).thenReturn(Optional.empty());
+        String email = "nonexistent@example.com";
+        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), email)).thenReturn(Optional.empty());
 
         // When
-        boolean result = tenantUserService.existsByEmail(testTenant.getId(), testUser.getEmail());
+        boolean result = tenantUserService.existsByEmail(testTenant.getId(), email);
 
         // Then
         assertFalse(result);
-        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail());
+
+        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), email);
     }
 
     @Test
     void testAuthenticateUser_Success() {
         // Given
+        String email = "test@example.com";
         String password = "password123";
-        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail())).thenReturn(Optional.of(testUser));
+        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), email)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(password, testUser.getPasswordHash())).thenReturn(true);
 
         // When
-        Optional<TenantUserDto> result = tenantUserService.authenticateUser(testTenant.getId(), testUser.getEmail(), password);
+        Optional<TenantUserDto> result = tenantUserService.authenticateUser(testTenant.getId(), email, password);
 
         // Then
         assertTrue(result.isPresent());
         assertEquals(testUser.getId(), result.get().getId());
-        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail());
+
+        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), email);
         verify(passwordEncoder).matches(password, testUser.getPasswordHash());
     }
 
     @Test
     void testAuthenticateUser_UserNotFound() {
         // Given
-        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail())).thenReturn(Optional.empty());
+        String email = "nonexistent@example.com";
+        String password = "password123";
+        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), email)).thenReturn(Optional.empty());
 
         // When
-        Optional<TenantUserDto> result = tenantUserService.authenticateUser(testTenant.getId(), testUser.getEmail(), "password");
+        Optional<TenantUserDto> result = tenantUserService.authenticateUser(testTenant.getId(), email, password);
 
         // Then
         assertFalse(result.isPresent());
-        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail());
-        verify(passwordEncoder, never()).matches(anyString(), anyString());
+
+        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), email);
+        verify(passwordEncoder, never()).matches(any(), any());
     }
 
     @Test
     void testAuthenticateUser_InactiveUser() {
         // Given
-        TenantUser inactiveUser = TenantUser.builder()
-                .id(testUser.getId())
-                .tenant(testTenant)
-                .email(testUser.getEmail())
-                .isActive(false)
-                .passwordHash("encoded-password")
-                .build();
-        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail())).thenReturn(Optional.of(inactiveUser));
+        String email = "test@example.com";
+        String password = "password123";
+        testUser.setIsActive(false);
+        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), email)).thenReturn(Optional.of(testUser));
 
         // When
-        Optional<TenantUserDto> result = tenantUserService.authenticateUser(testTenant.getId(), testUser.getEmail(), "password");
+        Optional<TenantUserDto> result = tenantUserService.authenticateUser(testTenant.getId(), email, password);
 
         // Then
         assertFalse(result.isPresent());
-        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail());
-        verify(passwordEncoder, never()).matches(anyString(), anyString());
+
+        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), email);
+        verify(passwordEncoder, never()).matches(any(), any());
     }
 
     @Test
     void testAuthenticateUser_WrongPassword() {
         // Given
-        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail())).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("wrongpassword", testUser.getPasswordHash())).thenReturn(false);
+        String email = "test@example.com";
+        String password = "wrongpassword";
+        when(tenantUserRepository.findByTenantIdAndEmail(testTenant.getId(), email)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(password, testUser.getPasswordHash())).thenReturn(false);
 
         // When
-        Optional<TenantUserDto> result = tenantUserService.authenticateUser(testTenant.getId(), testUser.getEmail(), "wrongpassword");
+        Optional<TenantUserDto> result = tenantUserService.authenticateUser(testTenant.getId(), email, password);
 
         // Then
         assertFalse(result.isPresent());
-        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), testUser.getEmail());
-        verify(passwordEncoder).matches("wrongpassword", testUser.getPasswordHash());
+
+        verify(tenantUserRepository).findByTenantIdAndEmail(testTenant.getId(), email);
+        verify(passwordEncoder).matches(password, testUser.getPasswordHash());
     }
 } 
