@@ -1,5 +1,6 @@
 package com.teneocast.tenant.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,6 +31,7 @@ public class TenantSubscription {
     @NotNull(message = "Tenant is required")
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id", nullable = false, unique = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Tenant tenant;
     
     @Builder.Default

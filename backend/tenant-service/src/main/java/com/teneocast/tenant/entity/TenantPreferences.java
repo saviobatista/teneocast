@@ -1,5 +1,6 @@
 package com.teneocast.tenant.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -30,18 +31,19 @@ public class TenantPreferences {
     @NotNull(message = "Tenant is required")
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id", nullable = false, unique = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Tenant tenant;
     
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "jsonb")
     private String playbackSettings = "{}";
     
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "jsonb")
     private String genrePreferences = "[]";
     
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "jsonb")
     private String adRules = "{}";
     
     @Builder.Default
