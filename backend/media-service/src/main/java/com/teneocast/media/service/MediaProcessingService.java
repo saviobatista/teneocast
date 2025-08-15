@@ -27,6 +27,11 @@ public class MediaProcessingService {
         this.tika = new Tika();
     }
     
+    // Constructor for testing
+    public MediaProcessingService(Tika tika) {
+        this.tika = tika;
+    }
+    
     /**
      * Validate uploaded file
      * @param file The file to validate

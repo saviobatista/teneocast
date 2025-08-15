@@ -22,12 +22,16 @@ import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.server.LocalServerPort;
 
-@SpringBootTest
-@AutoConfigureWebMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Transactional
 class MusicControllerIntegrationTest {
+
+    @LocalServerPort
+    private int port;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -42,6 +46,7 @@ class MusicControllerIntegrationTest {
     private ObjectMapper objectMapper;
     private UUID testTenantId;
     private MusicGenre testGenre;
+    private String baseUrl;
 
     @BeforeEach
     void setUp() {
@@ -57,13 +62,14 @@ class MusicControllerIntegrationTest {
                 .build();
         musicGenreRepository.save(testGenre);
         
+        baseUrl = "http://localhost:" + port + "/media";
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         objectMapper = new ObjectMapper();
     }
 
     @Test
     void testGetAllGenres() throws Exception {
-        mockMvc.perform(get("/api/media/music/genres"))
+        mockMvc.perform(get("/media/api/media/music/genres"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
@@ -72,7 +78,7 @@ class MusicControllerIntegrationTest {
 
     @Test
     void testGetMusicByTenant_Empty() throws Exception {
-        mockMvc.perform(get("/api/media/music")
+        mockMvc.perform(get("/media/api/media/music")
                 .header("X-Tenant-ID", testTenantId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -82,7 +88,7 @@ class MusicControllerIntegrationTest {
 
     @Test
     void testGetMusicByTenant_WithSearch() throws Exception {
-        mockMvc.perform(get("/api/media/music")
+        mockMvc.perform(get("/media/api/media/music")
                 .header("X-Tenant-ID", testTenantId.toString())
                 .param("search", "test"))
                 .andExpect(status().isOk())
@@ -91,7 +97,7 @@ class MusicControllerIntegrationTest {
 
     @Test
     void testGetMusicByTenant_WithGenre() throws Exception {
-        mockMvc.perform(get("/api/media/music")
+        mockMvc.perform(get("/media/api/media/music")
                 .header("X-Tenant-ID", testTenantId.toString())
                 .param("genreId", testGenre.getId().toString()))
                 .andExpect(status().isOk())
@@ -100,7 +106,7 @@ class MusicControllerIntegrationTest {
 
     @Test
     void testGetAllMusicByTenant_Empty() throws Exception {
-        mockMvc.perform(get("/api/media/music/all")
+        mockMvc.perform(get("/media/api/media/music/all")
                 .header("X-Tenant-ID", testTenantId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -110,7 +116,7 @@ class MusicControllerIntegrationTest {
 
     @Test
     void testHealthEndpoint() throws Exception {
-        mockMvc.perform(get("/health"))
+        mockMvc.perform(get("/media/health"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"))
                 .andExpect(jsonPath("$.service").value("media-service"));

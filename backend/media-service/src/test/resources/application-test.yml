@@ -52,6 +52,8 @@ media:
 # Server Configuration
 server:
   port: 0 # Random port for testing
+  servlet:
+    context-path: /media
 
 # Logging
 logging:

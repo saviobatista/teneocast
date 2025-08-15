@@ -20,6 +20,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.context.annotation.Import;
+import com.teneocast.media.config.TestSecurityConfig;
 
 import java.util.UUID;
 
@@ -28,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Transactional
+@Import(TestSecurityConfig.class)
 class MediaServiceE2ETest {
 
     @LocalServerPort
@@ -75,7 +78,7 @@ class MediaServiceE2ETest {
                 .tenantId(testTenantId)
                 .build());
 
-        baseUrl = "http://localhost:" + port;
+        baseUrl = "http://localhost:" + port + "/media";
         headers = new HttpHeaders();
         headers.set("X-Tenant-ID", testTenantId.toString());
     }
@@ -102,7 +105,7 @@ class MediaServiceE2ETest {
         musicUploadData.add("artist", "Test Artist");
         musicUploadData.add("album", "Test Album");
         musicUploadData.add("genreId", testGenre.getId());
-        musicUploadData.add("description", "Test song description");
+        musicUploadData.add("description", "Test song for validation");
 
         HttpEntity<MultiValueMap<String, Object>> musicUploadRequest = new HttpEntity<>(musicUploadData, headers);
         ResponseEntity<String> musicUploadResponse = restTemplate.postForEntity(
@@ -116,7 +119,6 @@ class MediaServiceE2ETest {
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class);
-
         assertEquals(HttpStatus.OK, musicListResponse.getStatusCode());
 
         // 4. Get all music for tenant
@@ -125,7 +127,6 @@ class MediaServiceE2ETest {
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class);
-
         assertEquals(HttpStatus.OK, allMusicResponse.getStatusCode());
     }
 
@@ -137,12 +138,11 @@ class MediaServiceE2ETest {
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class);
-
         assertEquals(HttpStatus.OK, adTypesResponse.getStatusCode());
 
         // 2. Upload advertisement file
-        byte[] audioContent = "fake ad content".getBytes();
-        ByteArrayResource audioResource = new ByteArrayResource(audioContent) {
+        byte[] adContent = "fake ad content".getBytes();
+        ByteArrayResource adResource = new ByteArrayResource(adContent) {
             @Override
             public String getFilename() {
                 return "test-ad.mp3";
@@ -150,9 +150,9 @@ class MediaServiceE2ETest {
         };
 
         MultiValueMap<String, Object> adUploadData = new LinkedMultiValueMap<>();
-        adUploadData.add("file", audioResource);
+        adUploadData.add("file", adResource);
         adUploadData.add("name", "Test Advertisement");
-        adUploadData.add("description", "Test ad description");
+        adUploadData.add("description", "Test ad for validation");
         adUploadData.add("adTypeId", testAdType.getId());
         adUploadData.add("targetAudience", "General");
 
@@ -168,7 +168,6 @@ class MediaServiceE2ETest {
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class);
-
         assertEquals(HttpStatus.OK, adListResponse.getStatusCode());
 
         // 4. Get all advertisements for tenant
@@ -177,7 +176,6 @@ class MediaServiceE2ETest {
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class);
-
         assertEquals(HttpStatus.OK, allAdsResponse.getStatusCode());
     }
 
@@ -202,20 +200,14 @@ class MediaServiceE2ETest {
                 HttpMethod.GET,
                 new HttpEntity<>(otherHeaders),
                 String.class);
-
         assertEquals(HttpStatus.OK, otherTenantResponse.getStatusCode());
-        // Should return empty list for different tenant
-    }
 
-    @Test
-    void testSearchAndFiltering() {
         // Test search functionality
         ResponseEntity<String> searchResponse = restTemplate.exchange(
                 baseUrl + "/api/media/music?search=test",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class);
-
         assertEquals(HttpStatus.OK, searchResponse.getStatusCode());
 
         // Test genre filtering
@@ -224,7 +216,6 @@ class MediaServiceE2ETest {
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 String.class);
-
         assertEquals(HttpStatus.OK, genreFilterResponse.getStatusCode());
     }
 }
