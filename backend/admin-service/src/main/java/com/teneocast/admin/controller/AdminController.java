@@ -4,6 +4,14 @@ import com.teneocast.admin.dto.AdminUserDto;
 import com.teneocast.admin.dto.CreateAdminUserRequest;
 import com.teneocast.admin.service.AdminUserService;
 import com.teneocast.common.dto.UserRole;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +26,8 @@ import java.util.UUID;
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Admin User Management", description = "Operations for managing admin users (ROOT/OPERATOR)")
+@SecurityRequirement(name = "Bearer Authentication")
 public class AdminController {
 
     private final AdminUserService adminUserService;
