@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "TeneoCast Media Service",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
