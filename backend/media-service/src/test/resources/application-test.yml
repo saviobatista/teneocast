@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: media-service
+  
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;INIT=CREATE SCHEMA IF NOT EXISTS media
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+  
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+
+# AWS S3 Configuration for testing
+aws:
+  s3:
+    endpoint: http://localhost:9000
+    region: us-east-1
+    bucket-prefix: teneocast-media-test
+    access-key: test
+    secret-key: test
+    force-path-style: true
+
+# Media Configuration
+media:
+  upload:
+    max-file-size: 100MB
+    allowed-audio-formats: mp3,wav,ogg,m4a,aac
+    storage-path: /media
+  processing:
+    extract-metadata: true
+    generate-thumbnails: false
+    validate-audio: true
+
+# Server Configuration
+server:
+  port: 0 # Random port for testing
+  servlet:
+    context-path: /media
+
+# Logging
+logging:
+  level:
+    com.teneocast.media: DEBUG
+    org.springframework.web: DEBUG

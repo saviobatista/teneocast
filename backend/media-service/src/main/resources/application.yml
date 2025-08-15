@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: media-service
+  
+  profiles:
+    active: dev
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/teneocast
+    username: teneocast
+    password: teneocast_dev
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+  
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+      enabled: true
+
+# AWS S3 Configuration
+aws:
+  s3:
+    endpoint: http://localhost:9000
+    region: us-east-1
+    bucket-prefix: teneocast-media
+    access-key: teneocast
+    secret-key: teneocast_dev
+    force-path-style: true
+
+# Media Configuration
+media:
+  upload:
+    max-file-size: 100MB
+    allowed-audio-formats: mp3,wav,ogg,m4a,aac
+    storage-path: /media
+  processing:
+    extract-metadata: true
+    generate-thumbnails: false
+    validate-audio: true
+
+# Server Configuration
+server:
+  port: 8083
+  servlet:
+    context-path: /media
+
+# Logging
+logging:
+  level:
+    com.teneocast.media: DEBUG
+    org.springframework.web: DEBUG
+    software.amazon.awssdk: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
