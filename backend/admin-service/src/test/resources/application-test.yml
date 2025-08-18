@@ -16,9 +16,12 @@ spring:
   
   data:
     redis:
-      host: localhost
-      port: 6379
-      timeout: 1000ms
+      host: 127.0.0.1
+      port: 9999
+      timeout: 100ms
+      lettuce:
+        pool:
+          enabled: false
   
   flyway:
     enabled: false
