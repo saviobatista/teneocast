@@ -4,6 +4,10 @@ spring:
     username: sa
     password: 
     driver-class-name: org.h2.Driver
+    hikari:
+      connection-timeout: 5000
+      maximum-pool-size: 5
+      minimum-idle: 1
   
   jpa:
     hibernate:
@@ -13,6 +17,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
+        jdbc:
+          batch_size: 10
+        connection:
+          provider_disables_autocommit: true
   
   data:
     redis:
@@ -22,9 +30,17 @@ spring:
       lettuce:
         pool:
           enabled: false
+        shutdown-timeout: 100ms
   
   flyway:
     enabled: false
+
+# Test Timeouts
+test:
+  timeout:
+    connection: 5000
+    response: 10000
+    cleanup: 5000
 
 management:
   endpoints:
@@ -40,10 +56,8 @@ logging:
 
 admin:
   service:
-    impersonation:
-      session-timeout-minutes: 5
-      max-concurrent-sessions: 2
-    security:
-      jwt:
-        secret: test_jwt_secret_key_for_testing_only
-        expiration-ms: 300000 # 5 minutes for testing
+    imperva:
+      enabled: false
+      api-key: test-key
+      secret-key: test-secret
+      account-id: test-account

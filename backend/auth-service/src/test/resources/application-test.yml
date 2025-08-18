@@ -7,6 +7,10 @@ spring:
     username: sa
     password: 
     driver-class-name: org.h2.Driver
+    hikari:
+      connection-timeout: 5000
+      maximum-pool-size: 5
+      minimum-idle: 1
   
   jpa:
     hibernate:
@@ -16,6 +20,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
+        jdbc:
+          batch_size: 10
+        connection:
+          provider_disables_autocommit: true
   
   flyway:
     enabled: true
@@ -30,19 +38,24 @@ spring:
       lettuce:
         pool:
           enabled: false
+        shutdown-timeout: 100ms
 
 # JWT Configuration
 jwt:
   secret: test-jwt-secret-key-for-testing-only
-  expiration: 86400000 # 24 hours in milliseconds
-  refresh-expiration: 604800000 # 7 days in milliseconds
+  expiration: 3600000 # 1 hour in milliseconds
+  refresh-expiration: 86400000 # 24 hours in milliseconds
 
-# Server Configuration
-server:
-  port: 0 # Random port for testing
+# Test Timeouts
+test:
+  timeout:
+    connection: 5000
+    response: 10000
+    cleanup: 5000
 
 # Logging
 logging:
   level:
     com.teneocast.auth: DEBUG
-    org.springframework.security: DEBUG 
+    org.springframework.test: DEBUG
+    org.hibernate.SQL: DEBUG 

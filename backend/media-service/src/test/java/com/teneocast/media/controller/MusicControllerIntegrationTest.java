@@ -24,10 +24,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.context.annotation.Import;
+import com.teneocast.media.config.TestSecurityConfig;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Import(TestSecurityConfig.class)
 class MusicControllerIntegrationTest {
 
     @LocalServerPort
@@ -56,11 +60,12 @@ class MusicControllerIntegrationTest {
         
         // Create test data
         testTenantId = UUID.randomUUID();
+        String uniqueGenreName = "Test Genre " + System.currentTimeMillis();
         testGenre = MusicGenre.builder()
-                .name("Test Genre")
+                .name(uniqueGenreName)
                 .description("Test genre description")
                 .build();
-        musicGenreRepository.save(testGenre);
+        testGenre = musicGenreRepository.save(testGenre);
         
         baseUrl = "http://localhost:" + port + "/media";
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -73,7 +78,7 @@ class MusicControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].name").value("Test Genre"));
+                .andExpect(jsonPath("$.data[0].name").value(testGenre.getName()));
     }
 
     @Test
