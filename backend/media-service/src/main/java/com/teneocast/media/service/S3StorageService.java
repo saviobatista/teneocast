@@ -1,13 +1,15 @@
 package com.teneocast.media.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ByteArrayResource;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
@@ -15,9 +17,11 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
+import com.teneocast.media.config.S3EnabledCondition;
 
 @Service
 @Slf4j
+@Conditional(S3EnabledCondition.class)
 public class S3StorageService implements StorageService {
     
     private final S3Client s3Client;

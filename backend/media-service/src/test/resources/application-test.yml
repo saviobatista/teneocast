@@ -28,9 +28,10 @@ spring:
       port: 6379
       timeout: 2000ms
 
-# AWS S3 Configuration for testing
+# AWS S3 Configuration for testing - Disabled for tests
 aws:
   s3:
+    enabled: false
     endpoint: http://localhost:9000
     region: us-east-1
     bucket-prefix: teneocast-media-test
@@ -43,7 +44,8 @@ media:
   upload:
     max-file-size: 100MB
     allowed-audio-formats: mp3,wav,ogg,m4a,aac
-    storage-path: /media
+    storage-path: /tmp/teneocast-test-media
+    use-local-storage: true
   processing:
     extract-metadata: true
     generate-thumbnails: false
