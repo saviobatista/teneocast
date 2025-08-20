@@ -20,11 +20,17 @@ class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
     private User testUser;
 
     @BeforeEach
     void setUp() {
+        // Clean the database before each test - delete in correct order to avoid FK violations
+        refreshTokenRepository.deleteAll();
+        refreshTokenRepository.flush();
         userRepository.deleteAll();
         userRepository.flush();
         
