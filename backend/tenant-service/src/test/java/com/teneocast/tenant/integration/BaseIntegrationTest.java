@@ -15,6 +15,10 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.annotation.PostConstruct;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -53,6 +57,10 @@ public abstract class BaseIntegrationTest {
         
         // Override server context path to prevent conflicts
         registry.add("server.servlet.context-path", () -> "");
+        
+        // Add database initialization settings
+        registry.add("spring.jpa.defer-datasource-initialization", () -> "false");
+        registry.add("spring.sql.init.mode", () -> "never");
     }
 
     @Autowired
@@ -67,8 +75,48 @@ public abstract class BaseIntegrationTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
+    @Autowired
+    protected DataSource dataSource;
+
     @LocalServerPort
     protected int port;
+
+    @PostConstruct
+    void verifyDatabaseConnection() {
+        // Verify database connection and wait for it to be ready
+        int maxRetries = 10;
+        int retryCount = 0;
+        
+        while (retryCount < maxRetries) {
+            try (Connection connection = dataSource.getConnection()) {
+                // Test if we can execute a simple query
+                connection.createStatement().execute("SELECT 1");
+                System.out.println("Database connection established successfully");
+                break;
+            } catch (SQLException e) {
+                retryCount++;
+                System.out.println("Database connection attempt " + retryCount + " failed: " + e.getMessage());
+                if (retryCount >= maxRetries) {
+                    throw new RuntimeException("Failed to establish database connection after " + maxRetries + " attempts", e);
+                }
+                try {
+                    Thread.sleep(2000); // Wait 2 seconds before retry
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Database connection verification interrupted", ie);
+                }
+            }
+        }
+        
+        // Ensure schema is created by triggering a simple repository operation
+        try {
+            // This will trigger Hibernate to create the schema
+            tenantRepository.count();
+            System.out.println("Database schema created successfully");
+        } catch (Exception e) {
+            System.out.println("Warning: Could not verify schema creation: " + e.getMessage());
+        }
+    }
 
     @BeforeEach
     void setUp() {
