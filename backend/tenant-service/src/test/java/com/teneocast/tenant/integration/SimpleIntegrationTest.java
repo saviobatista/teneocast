@@ -33,11 +33,21 @@ class SimpleIntegrationTest {
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
+        // Explicitly override ALL datasource properties to prevent conflicts with main application.yml
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
+        
+        // Override Redis configuration
         registry.add("spring.data.redis.host", redis::getHost);
         registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
+        
+        // Override JPA configuration to ensure it works with Testcontainers
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+        registry.add("spring.jpa.show-sql", () -> "true");
+        registry.add("spring.jpa.properties.hibernate.dialect", () -> "org.hibernate.dialect.PostgreSQLDialect");
+        registry.add("spring.jpa.properties.hibernate.format_sql", () -> "true");
         
         // Add connection pool settings for better stability
         registry.add("spring.datasource.hikari.maximum-pool-size", () -> "5");
@@ -45,9 +55,16 @@ class SimpleIntegrationTest {
         registry.add("spring.datasource.hikari.connection-timeout", () -> "30000");
         registry.add("spring.datasource.hikari.idle-timeout", () -> "600000");
         registry.add("spring.datasource.hikari.max-lifetime", () -> "1800000");
+        registry.add("spring.datasource.hikari.auto-commit", () -> "false");
         
         // Disable autocommit to fix transaction issues
         registry.add("spring.jpa.properties.hibernate.connection.provider_disables_autocommit", () -> "true");
+        
+        // Ensure Flyway is disabled for tests
+        registry.add("spring.flyway.enabled", () -> "false");
+        
+        // Override server context path to prevent conflicts
+        registry.add("server.servlet.context-path", () -> "");
     }
 
     @Test
