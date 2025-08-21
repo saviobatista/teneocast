@@ -22,10 +22,14 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         log.info("Login attempt for tenant: {} with email: {}", request.getTenantId(), request.getEmail());
         
-        LoginResponse response = authService.login(request);
-        log.info("Login successful for tenant: {} with email: {}", request.getTenantId(), request.getEmail());
-        
-        return ResponseEntity.ok(response);
+        try {
+            LoginResponse response = authService.login(request);
+            log.info("Login successful for tenant: {} with email: {}, response: {}", request.getTenantId(), request.getEmail(), response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Login failed for tenant: {} with email: {}", request.getTenantId(), request.getEmail(), e);
+            throw e;
+        }
     }
 
     @PostMapping("/refresh")

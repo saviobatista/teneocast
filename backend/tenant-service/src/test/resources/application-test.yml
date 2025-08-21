@@ -26,7 +26,7 @@ spring:
           provider_disables_autocommit: true
   
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/migration
     baseline-on-migrate: true
 

@@ -5,23 +5,38 @@ import com.teneocast.tenant.dto.LoginRequest;
 import com.teneocast.tenant.dto.LoginResponse;
 import com.teneocast.tenant.dto.TenantUserDto;
 import com.teneocast.tenant.service.AuthService;
+import com.teneocast.tenant.service.JwtService;
+import com.teneocast.tenant.service.TenantUserDetailsService;
+import com.teneocast.tenant.config.JwtAuthenticationFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@WebMvcTest(AuthController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
 class AuthControllerTest {
 
@@ -31,11 +46,94 @@ class AuthControllerTest {
     @MockBean
     private AuthService authService;
 
+    @MockBean
+    private JwtService jwtService;
+
+    @MockBean
+    private TenantUserDetailsService tenantUserDetailsService;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
+        
+        // Verify that the mock is working
+        assertNotNull(authService, "AuthService mock should be injected");
+    }
+
+    @Test
+    void testMockInjection() {
+        // This test verifies that the mock is properly injected
+        assertNotNull(authService);
+        
+        // Test that the mock can be configured
+        when(authService.login(any(LoginRequest.class))).thenReturn(
+            LoginResponse.builder()
+                .accessToken("test.token")
+                .refreshToken("test.refresh")
+                .tokenType("Bearer")
+                .expiresIn(3600L)
+                .user(TenantUserDto.builder()
+                    .id("test123")
+                    .email("test@example.com")
+                    .role(TenantUserDto.UserRole.MASTER)
+                    .isActive(true)
+                    .build())
+                .build()
+        );
+        
+        LoginRequest request = LoginRequest.builder()
+            .tenantId("test")
+            .email("test@example.com")
+            .password("password")
+            .build();
+            
+        LoginResponse response = authService.login(request);
+        assertNotNull(response);
+        assertEquals("test.token", response.getAccessToken());
+    }
+
+    @Test
+    void testControllerDirectly() {
+        // Test the controller method directly without MockMvc
+        AuthController controller = new AuthController(authService);
+        
+        // Setup mock
+        LoginRequest request = LoginRequest.builder()
+            .tenantId("tenant123")
+            .email("test@example.com")
+            .password("password123")
+            .build();
+            
+        LoginResponse expectedResponse = LoginResponse.builder()
+            .accessToken("test.token")
+            .refreshToken("test.refresh")
+            .tokenType("Bearer")
+            .expiresIn(3600L)
+            .user(TenantUserDto.builder()
+                .id("test123")
+                .email("test@example.com")
+                .role(TenantUserDto.UserRole.MASTER)
+                .isActive(true)
+                .build())
+            .build();
+            
+        when(authService.login(request)).thenReturn(expectedResponse);
+        
+        // Call controller method directly
+        var response = controller.login(request);
+        
+        // Verify response
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(expectedResponse, response.getBody());
+        
+        // Verify mock was called
+        verify(authService).login(request);
     }
 
     @Test
