@@ -53,6 +53,9 @@ public abstract class BaseIntegrationTest {
         registry.add("spring.datasource.hikari.connection-timeout", () -> "30000");
         registry.add("spring.datasource.hikari.idle-timeout", () -> "600000");
         registry.add("spring.datasource.hikari.max-lifetime", () -> "1800000");
+        
+        // Disable autocommit to fix transaction issues
+        registry.add("spring.datasource.hikari.auto-commit", () -> "false");
     }
 
     @Autowired

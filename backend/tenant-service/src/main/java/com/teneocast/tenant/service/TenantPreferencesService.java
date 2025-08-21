@@ -140,10 +140,12 @@ public class TenantPreferencesService {
     public List<TenantPreferencesDto> getPreferencesByPlaybackSettings(String setting) {
         log.debug("Getting preferences by playback settings: {}", setting);
         
-        List<TenantPreferences> preferences = tenantPreferencesRepository.findByPlaybackSettingsContaining(setting);
-        return preferences.stream()
-                .map(this::mapToDto)
-                .toList();
+        // TODO: Fix JSONB query - cannot use LIKE on JSONB columns
+        // List<TenantPreferences> preferences = tenantPreferencesRepository.findByPlaybackSettingsContaining(setting);
+        // return preferences.stream()
+        //         .map(this::mapToDto)
+        //         .toList();
+        throw new UnsupportedOperationException("Search by playback settings not implemented for JSONB columns");
     }
 
     /**
@@ -153,10 +155,12 @@ public class TenantPreferencesService {
     public List<TenantPreferencesDto> getPreferencesByGenrePreferences(String genre) {
         log.debug("Getting preferences by genre preferences: {}", genre);
         
-        List<TenantPreferences> preferences = tenantPreferencesRepository.findByGenrePreferencesContaining(genre);
-        return preferences.stream()
-                .map(this::mapToDto)
-                .toList();
+        // TODO: Fix JSONB query - cannot use LIKE on JSONB columns
+        // List<TenantPreferences> preferences = tenantPreferencesRepository.findByGenrePreferencesContaining(genre);
+        // return preferences.stream()
+        //         .map(this::mapToDto)
+        //         .toList();
+        throw new UnsupportedOperationException("Search by genre preferences not implemented for JSONB columns");
     }
 
     /**
@@ -166,10 +170,12 @@ public class TenantPreferencesService {
     public List<TenantPreferencesDto> getPreferencesByAdRules(String rule) {
         log.debug("Getting preferences by ad rules: {}", rule);
         
-        List<TenantPreferences> preferences = tenantPreferencesRepository.findByAdRulesContaining(rule);
-        return preferences.stream()
-                .map(this::mapToDto)
-                .toList();
+        // TODO: Fix JSONB query - cannot use LIKE on JSONB columns
+        // List<TenantPreferences> preferences = tenantPreferencesRepository.findByAdRulesContaining(rule);
+        // return preferences.stream()
+        //         .map(this::mapToDto)
+        //         .toList();
+        throw new UnsupportedOperationException("Search by ad rules not implemented for JSONB columns");
     }
 
     /**
