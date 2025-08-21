@@ -49,8 +49,11 @@ class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, userDetailsService);
+        // Clear security context to ensure clean state
         SecurityContextHolder.clearContext();
+        
+        // Create fresh filter instance
+        jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, userDetailsService);
     }
 
     @Test
@@ -63,6 +66,7 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn(authHeader);
         when(jwtService.extractUsername(jwt)).thenReturn(username);
         when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+        when(userDetails.getUsername()).thenReturn(username);
         when(jwtService.validateToken(jwt, username)).thenReturn(true);
         when(userDetails.getAuthorities()).thenReturn(java.util.Collections.emptyList());
 
@@ -198,6 +202,7 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn(authHeader);
         when(jwtService.extractUsername(jwt)).thenReturn(username);
         when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+        when(userDetails.getUsername()).thenReturn(username);
         when(jwtService.validateToken(jwt, username)).thenReturn(false);
 
         // When
@@ -245,6 +250,7 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn(authHeader);
         when(jwtService.extractUsername(jwt)).thenReturn(username);
         when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+        when(userDetails.getUsername()).thenReturn(username);
         when(jwtService.validateToken(jwt, username)).thenReturn(true);
         when(userDetails.getAuthorities()).thenReturn(authorities);
 
@@ -303,17 +309,16 @@ class JwtAuthenticationFilterTest {
     @Test
     void testDoFilterInternal_WithNullJwtToken() throws ServletException, IOException {
         // Given
-        String jwt = null;
-        String authHeader = "Bearer " + jwt;
+        String authHeader = "Bearer null";
 
         when(request.getHeader("Authorization")).thenReturn(authHeader);
-        when(jwtService.extractUsername(jwt)).thenThrow(new RuntimeException("Null token"));
+        when(jwtService.extractUsername("null")).thenThrow(new RuntimeException("Null token"));
 
         // When
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         // Then
-        verify(jwtService).extractUsername(jwt);
+        verify(jwtService).extractUsername("null");
         verify(userDetailsService, never()).loadUserByUsername(anyString());
         verify(filterChain).doFilter(request, response);
         assertNull(SecurityContextHolder.getContext().getAuthentication());

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teneocast.auth.dto.LoginRequest;
 import com.teneocast.auth.entity.User;
 import com.teneocast.auth.repository.UserRepository;
+import com.teneocast.auth.repository.RefreshTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ class AuthControllerTest {
     private UserRepository userRepository;
     
     @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+    
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private MockMvc mockMvc;
@@ -40,7 +44,9 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Clean the database before each test
+        // Clean the database before each test - delete in correct order to avoid FK violations
+        refreshTokenRepository.deleteAll();
+        refreshTokenRepository.flush();
         userRepository.deleteAll();
         userRepository.flush();
         

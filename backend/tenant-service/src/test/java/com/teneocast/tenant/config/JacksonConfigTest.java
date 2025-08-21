@@ -25,7 +25,8 @@ class JacksonConfigTest {
 
         // Then
         assertNotNull(objectMapper);
-        assertTrue(objectMapper.getRegisteredModuleIds().contains(JavaTimeModule.class.getName()));
+        // Check if JavaTimeModule is registered (any module with "jsr310" in the name)
+        assertTrue(objectMapper.getRegisteredModuleIds().stream().anyMatch(id -> id.toString().contains("jsr310")));
         assertFalse(objectMapper.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
         assertTrue(objectMapper.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING));
 
@@ -194,7 +195,7 @@ class JacksonConfigTest {
 
         // Then
         // Verify that JavaTimeModule is registered
-        assertTrue(objectMapper.getRegisteredModuleIds().contains(JavaTimeModule.class.getName()));
+        assertTrue(objectMapper.getRegisteredModuleIds().stream().anyMatch(id -> id.toString().contains("jsr310")));
 
         // Verify serialization features
         assertFalse(objectMapper.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));

@@ -24,10 +24,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.context.annotation.Import;
+import com.teneocast.media.config.TestSecurityConfig;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Import(TestSecurityConfig.class)
 class MusicControllerIntegrationTest {
 
     @LocalServerPort
@@ -56,11 +60,12 @@ class MusicControllerIntegrationTest {
         
         // Create test data
         testTenantId = UUID.randomUUID();
+        String uniqueGenreName = "Test Genre " + System.currentTimeMillis();
         testGenre = MusicGenre.builder()
-                .name("Test Genre")
+                .name(uniqueGenreName)
                 .description("Test genre description")
                 .build();
-        musicGenreRepository.save(testGenre);
+        testGenre = musicGenreRepository.save(testGenre);
         
         baseUrl = "http://localhost:" + port + "/media";
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -69,16 +74,16 @@ class MusicControllerIntegrationTest {
 
     @Test
     void testGetAllGenres() throws Exception {
-        mockMvc.perform(get("/media/api/media/music/genres"))
+        mockMvc.perform(get("/api/media/music/genres"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].name").value("Test Genre"));
+                .andExpect(jsonPath("$.data[0].name").value(testGenre.getName()));
     }
 
     @Test
     void testGetMusicByTenant_Empty() throws Exception {
-        mockMvc.perform(get("/media/api/media/music")
+        mockMvc.perform(get("/api/media/music")
                 .header("X-Tenant-ID", testTenantId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -88,7 +93,7 @@ class MusicControllerIntegrationTest {
 
     @Test
     void testGetMusicByTenant_WithSearch() throws Exception {
-        mockMvc.perform(get("/media/api/media/music")
+        mockMvc.perform(get("/api/media/music")
                 .header("X-Tenant-ID", testTenantId.toString())
                 .param("search", "test"))
                 .andExpect(status().isOk())
@@ -97,7 +102,7 @@ class MusicControllerIntegrationTest {
 
     @Test
     void testGetMusicByTenant_WithGenre() throws Exception {
-        mockMvc.perform(get("/media/api/media/music")
+        mockMvc.perform(get("/api/media/music")
                 .header("X-Tenant-ID", testTenantId.toString())
                 .param("genreId", testGenre.getId().toString()))
                 .andExpect(status().isOk())
@@ -106,7 +111,7 @@ class MusicControllerIntegrationTest {
 
     @Test
     void testGetAllMusicByTenant_Empty() throws Exception {
-        mockMvc.perform(get("/media/api/media/music/all")
+        mockMvc.perform(get("/api/media/music/all")
                 .header("X-Tenant-ID", testTenantId.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -116,7 +121,7 @@ class MusicControllerIntegrationTest {
 
     @Test
     void testHealthEndpoint() throws Exception {
-        mockMvc.perform(get("/media/health"))
+        mockMvc.perform(get("/health"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"))
                 .andExpect(jsonPath("$.service").value("media-service"));

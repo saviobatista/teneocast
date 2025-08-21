@@ -1,3 +1,4 @@
+# Test Configuration with Timeouts
 spring:
   application:
     name: media-service
@@ -7,6 +8,10 @@ spring:
     username: sa
     password: 
     driver-class-name: org.h2.Driver
+    hikari:
+      connection-timeout: 5000
+      maximum-pool-size: 5
+      minimum-idle: 1
   
   jpa:
     hibernate:
@@ -16,6 +21,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
+        jdbc:
+          batch_size: 10
+        connection:
+          provider_disables_autocommit: true
   
   flyway:
     enabled: true
@@ -24,13 +33,18 @@ spring:
   
   data:
     redis:
-      host: localhost
-      port: 6379
-      timeout: 2000ms
+      host: 127.0.0.1
+      port: 9999
+      timeout: 100ms
+      lettuce:
+        pool:
+          enabled: false
+        shutdown-timeout: 100ms
 
-# AWS S3 Configuration for testing
+# AWS S3 Configuration for testing - Disabled for tests
 aws:
   s3:
+    enabled: false
     endpoint: http://localhost:9000
     region: us-east-1
     bucket-prefix: teneocast-media-test
@@ -43,11 +57,19 @@ media:
   upload:
     max-file-size: 100MB
     allowed-audio-formats: mp3,wav,ogg,m4a,aac
-    storage-path: /media
+    storage-path: /tmp/teneocast-test-media
+    use-local-storage: true
   processing:
     extract-metadata: true
     generate-thumbnails: false
     validate-audio: true
+
+# Test Timeouts
+test:
+  timeout:
+    connection: 5000
+    response: 10000
+    cleanup: 5000
 
 # Server Configuration
 server:
@@ -59,4 +81,5 @@ server:
 logging:
   level:
     com.teneocast.media: DEBUG
-    org.springframework.web: DEBUG
+    org.springframework.test: DEBUG
+    org.hibernate.SQL: DEBUG

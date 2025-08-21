@@ -5,8 +5,9 @@ import com.teneocast.auth.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
@@ -14,8 +15,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
+@SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 class RefreshTokenRepositoryTest {
 
     @Autowired
@@ -32,9 +34,11 @@ class RefreshTokenRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // Clean the database before each test
+        // Clean the database before each test - delete in correct order to avoid FK violations
         refreshTokenRepository.deleteAll();
+        refreshTokenRepository.flush();
         userRepository.deleteAll();
+        userRepository.flush();
         
         // Create a test user
         testUser = User.builder()
@@ -49,6 +53,7 @@ class RefreshTokenRepositoryTest {
                 .build();
         
         userRepository.save(testUser);
+        userRepository.flush();
         
         // Create a test token
         testToken = RefreshToken.builder()

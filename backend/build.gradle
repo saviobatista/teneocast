@@ -75,6 +75,19 @@ subprojects {
     
     tasks.named('test') {
         useJUnitPlatform()
+        
+        // Set timeout for tests to prevent hanging
+        timeout = Duration.ofMinutes(10)
+        
+        // Configure test execution
+        maxParallelForks = 1
+        
+        // Set system properties for test timeouts
+        systemProperty 'junit.jupiter.execution.timeout.default', '5m'
+        systemProperty 'junit.jupiter.execution.timeout.mode', 'enabled'
+        
+        // Fail fast on test failures
+        failFast = true
     }
     
     // Common configuration for all services

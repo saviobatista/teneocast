@@ -1,0 +1,63 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+    hikari:
+      connection-timeout: 5000
+      maximum-pool-size: 5
+      minimum-idle: 1
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        jdbc:
+          batch_size: 10
+        connection:
+          provider_disables_autocommit: true
+  
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 9999
+      timeout: 100ms
+      lettuce:
+        pool:
+          enabled: false
+        shutdown-timeout: 100ms
+  
+  flyway:
+    enabled: false
+
+# Test Timeouts
+test:
+  timeout:
+    connection: 5000
+    response: 10000
+    cleanup: 5000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    com.teneocast.admin: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.test: DEBUG
+
+admin:
+  service:
+    imperva:
+      enabled: false
+      api-key: test-key
+      secret-key: test-secret
+      account-id: test-account

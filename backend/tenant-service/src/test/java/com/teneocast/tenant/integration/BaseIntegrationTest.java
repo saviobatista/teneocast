@@ -14,38 +14,32 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
+import jakarta.annotation.PostConstruct;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("integration-test")
-@Testcontainers
+@ActiveProfiles("ci")
 public abstract class BaseIntegrationTest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test")
-            .withReuse(true);
-
-    @Container
-    static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
-            .withExposedPorts(6379)
-            .withReuse(true);
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.data.redis.host", redis::getHost);
-        registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
+        // Always use external services (CI services or local services)
+        registry.add("spring.datasource.url", () -> "jdbc:postgresql://localhost:5432/teneocast_test");
+        registry.add("spring.datasource.username", () -> "test");
+        registry.add("spring.datasource.password", () -> "test");
+        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
+        registry.add("spring.data.redis.host", () -> "localhost");
+        registry.add("spring.data.redis.port", () -> 6379);
+        
+        // Common configuration
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+        registry.add("spring.jpa.show-sql", () -> "true");
+        registry.add("spring.jpa.properties.hibernate.dialect", () -> "org.hibernate.dialect.PostgreSQLDialect");
+        registry.add("spring.jpa.properties.hibernate.format_sql", () -> "true");
         
         // Add connection pool settings for better stability
         registry.add("spring.datasource.hikari.maximum-pool-size", () -> "5");
@@ -53,6 +47,20 @@ public abstract class BaseIntegrationTest {
         registry.add("spring.datasource.hikari.connection-timeout", () -> "30000");
         registry.add("spring.datasource.hikari.idle-timeout", () -> "600000");
         registry.add("spring.datasource.hikari.max-lifetime", () -> "1800000");
+        registry.add("spring.datasource.hikari.auto-commit", () -> "false");
+        
+        // Disable autocommit to fix transaction issues
+        registry.add("spring.jpa.properties.hibernate.connection.provider_disables_autocommit", () -> "true");
+        
+        // Ensure Flyway is disabled for tests
+        registry.add("spring.flyway.enabled", () -> "false");
+        
+        // Override server context path to prevent conflicts
+        registry.add("server.servlet.context-path", () -> "");
+        
+        // Add database initialization settings
+        registry.add("spring.jpa.defer-datasource-initialization", () -> "false");
+        registry.add("spring.sql.init.mode", () -> "never");
     }
 
     @Autowired
@@ -67,8 +75,48 @@ public abstract class BaseIntegrationTest {
     @Autowired
     protected ObjectMapper objectMapper;
 
+    @Autowired
+    protected DataSource dataSource;
+
     @LocalServerPort
     protected int port;
+
+    @PostConstruct
+    void verifyDatabaseConnection() {
+        // Verify database connection and wait for it to be ready
+        int maxRetries = 10;
+        int retryCount = 0;
+        
+        while (retryCount < maxRetries) {
+            try (Connection connection = dataSource.getConnection()) {
+                // Test if we can execute a simple query
+                connection.createStatement().execute("SELECT 1");
+                System.out.println("Database connection established successfully");
+                break;
+            } catch (SQLException e) {
+                retryCount++;
+                System.out.println("Database connection attempt " + retryCount + " failed: " + e.getMessage());
+                if (retryCount >= maxRetries) {
+                    throw new RuntimeException("Failed to establish database connection after " + maxRetries + " attempts", e);
+                }
+                try {
+                    Thread.sleep(2000); // Wait 2 seconds before retry
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Database connection verification interrupted", ie);
+                }
+            }
+        }
+        
+        // Ensure schema is created by triggering a simple repository operation
+        try {
+            // This will trigger Hibernate to create the schema
+            tenantRepository.count();
+            System.out.println("Database schema created successfully");
+        } catch (Exception e) {
+            System.out.println("Warning: Could not verify schema creation: " + e.getMessage());
+        }
+    }
 
     @BeforeEach
     void setUp() {

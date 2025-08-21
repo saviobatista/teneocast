@@ -1,12 +1,16 @@
 spring:
   application:
-    name: tenant-service-test
+    name: tenant-service
   
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL;INIT=CREATE SCHEMA IF NOT EXISTS tenant
     username: sa
     password: 
     driver-class-name: org.h2.Driver
+    hikari:
+      connection-timeout: 5000
+      maximum-pool-size: 5
+      minimum-idle: 1
   
   jpa:
     hibernate:
@@ -16,40 +20,29 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
-        globally_quoted_identifiers: true
+        jdbc:
+          batch_size: 10
+        connection:
+          provider_disables_autocommit: true
   
   flyway:
     enabled: false
-  
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      timeout: 2000ms
-  
-  security:
-    user:
-      name: test
-      password: test
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 
-# JWT Configuration for tests
-jwt:
-  secret: test-jwt-secret-key-for-testing-only
-  expiration: 3600000 # 1 hour in milliseconds
-  refresh-expiration: 86400000 # 24 hours in milliseconds
+# Test Timeouts
+test:
+  timeout:
+    connection: 5000
+    response: 10000
+    cleanup: 5000
 
-# Server Configuration
-server:
-  port: 0 # Random port for tests
-  servlet:
-    context-path: /tenant
-
-# Logging for tests
+# Logging
 logging:
   level:
     com.teneocast.tenant: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
+    org.springframework.test: DEBUG
+    org.hibernate.SQL: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
@@ -74,3 +67,26 @@ tenant:
   preferences:
     default-volume: 50
     default-genres: ["pop", "rock", "jazz"] 
+
+# JWT Configuration for tests
+jwt:
+  secret: test-jwt-secret-key-for-testing-only
+  expiration: 3600000 # 1 hour in milliseconds
+  refresh-expiration: 86400000 # 24 hours in milliseconds
+
+# Server Configuration
+server:
+  port: 0 # Random port for tests
+
+# Data for tests
+data:
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+
+# Security for tests
+security:
+  user:
+    name: test
+    password: test 

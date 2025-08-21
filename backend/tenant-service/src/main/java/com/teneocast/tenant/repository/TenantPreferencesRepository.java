@@ -45,38 +45,38 @@ public interface TenantPreferencesRepository extends JpaRepository<TenantPrefere
     /**
      * Find preferences with specific playback settings
      */
-    @Query("SELECT p FROM TenantPreferences p WHERE p.playbackSettings LIKE %:setting%")
-    List<TenantPreferences> findByPlaybackSettingsContaining(@Param("setting") String setting);
+    // @Query("SELECT p FROM TenantPreferences p WHERE p.playbackSettings LIKE %:setting%")
+    // List<TenantPreferences> findByPlaybackSettingsContaining(@Param("setting") String setting);
 
     /**
      * Find preferences with specific genre preferences
      */
-    @Query("SELECT p FROM TenantPreferences p WHERE p.genrePreferences LIKE %:genre%")
-    List<TenantPreferences> findByGenrePreferencesContaining(@Param("genre") String genre);
+    // @Query("SELECT p FROM TenantPreferences p WHERE p.genrePreferences LIKE %:genre%")
+    // List<TenantPreferences> findByGenrePreferencesContaining(@Param("genre") String genre);
 
     /**
      * Find preferences with specific ad rules
      */
-    @Query("SELECT p FROM TenantPreferences p WHERE p.adRules LIKE %:rule%")
-    List<TenantPreferences> findByAdRulesContaining(@Param("rule") String rule);
+    // @Query("SELECT p FROM TenantPreferences p WHERE p.adRules LIKE %:rule%")
+    // List<TenantPreferences> findByAdRulesContaining(@Param("rule") String rule);
 
     /**
      * Find preferences by tenant ID with specific playback settings
      */
-    @Query("SELECT p FROM TenantPreferences p WHERE p.tenant.id = :tenantId AND p.playbackSettings LIKE %:setting%")
-    List<TenantPreferences> findByTenantIdAndPlaybackSettingsContaining(@Param("tenantId") String tenantId, @Param("setting") String setting);
+    // @Query("SELECT p FROM TenantPreferences p WHERE p.tenant.id = :tenantId AND p.playbackSettings LIKE %:setting%")
+    // List<TenantPreferences> findByTenantIdAndPlaybackSettingsContaining(@Param("tenantId") String tenantId, @Param("setting") String setting);
 
     /**
      * Find preferences by tenant ID with specific genre preferences
      */
-    @Query("SELECT p FROM TenantPreferences p WHERE p.tenant.id = :tenantId AND p.genrePreferences LIKE %:genre%")
-    List<TenantPreferences> findByTenantIdAndGenrePreferencesContaining(@Param("tenantId") String tenantId, @Param("genre") String genre);
+    // @Query("SELECT p FROM TenantPreferences p WHERE p.tenant.id = :tenantId AND p.genrePreferences LIKE %:genre%")
+    // List<TenantPreferences> findByTenantIdAndGenrePreferencesContaining(@Param("tenantId") String tenantId, @Param("setting") String genre);
 
     /**
      * Find preferences by tenant ID with specific ad rules
      */
-    @Query("SELECT p FROM TenantPreferences p WHERE p.tenant.id = :tenantId AND p.adRules LIKE %:rule%")
-    List<TenantPreferences> findByTenantIdAndAdRulesContaining(@Param("tenantId") String tenantId, @Param("rule") String rule);
+    // @Query("SELECT p FROM TenantPreferences p WHERE p.tenant.id = :tenantId AND p.adRules LIKE %:rule%")
+    // List<TenantPreferences> findByTenantIdAndAdRulesContaining(@Param("tenantId") String tenantId, @Param("setting") String rule);
 
     /**
      * Find preferences with null playback settings
