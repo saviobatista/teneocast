@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("integration-test")
+@ActiveProfiles("ci")
 public abstract class BaseIntegrationTest {
 
     @DynamicPropertySource

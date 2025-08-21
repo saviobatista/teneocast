@@ -10,7 +10,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("integration-test")
+@ActiveProfiles("ci")
 class SimpleIntegrationTest {
 
     @DynamicPropertySource

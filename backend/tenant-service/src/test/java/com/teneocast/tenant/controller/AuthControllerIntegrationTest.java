@@ -13,6 +13,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -23,10 +25,46 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
+@ActiveProfiles("ci")
+@Transactional
 class AuthControllerIntegrationTest {
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        // Always use external services (CI services or local services)
+        registry.add("spring.datasource.url", () -> "jdbc:postgresql://localhost:5432/teneocast_test");
+        registry.add("spring.datasource.username", () -> "test");
+        registry.add("spring.datasource.password", () -> "test");
+        registry.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
+        registry.add("spring.data.redis.host", () -> "localhost");
+        registry.add("spring.data.redis.port", () -> 6379);
+        
+        // Common configuration
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+        registry.add("spring.jpa.show-sql", () -> "true");
+        registry.add("spring.jpa.properties.hibernate.dialect", () -> "org.hibernate.dialect.PostgreSQLDialect");
+        registry.add("spring.jpa.properties.hibernate.format_sql", () -> "true");
+        
+        // Add connection pool settings for better stability
+        registry.add("spring.datasource.hikari.maximum-pool-size", () -> "5");
+        registry.add("spring.datasource.hikari.minimum-idle", () -> "1");
+        registry.add("spring.datasource.hikari.connection-timeout", () -> "30000");
+        registry.add("spring.datasource.hikari.idle-timeout", () -> "600000");
+        registry.add("spring.datasource.hikari.max-lifetime", () -> "1800000");
+        registry.add("spring.datasource.hikari.auto-commit", () -> "false");
+        
+        // Disable autocommit to fix transaction issues
+        registry.add("spring.jpa.properties.hibernate.connection.provider_disables_autocommit", () -> "true");
+        
+        // Ensure Flyway is disabled for tests
+        registry.add("spring.flyway.enabled", () -> "false");
+        
+        // Override server context path to prevent conflicts
+        registry.add("server.servlet.context-path", () -> "");
+    }
 
     @LocalServerPort
     private int port;

@@ -22,7 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ActiveProfiles("integration-test")
+@ActiveProfiles("ci")
 @Transactional
 class TenantRepositoryIntegrationTest {
 
