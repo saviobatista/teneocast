@@ -66,6 +66,7 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn(authHeader);
         when(jwtService.extractUsername(jwt)).thenReturn(username);
         when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+        when(userDetails.getUsername()).thenReturn(username);
         when(jwtService.validateToken(jwt, username)).thenReturn(true);
         when(userDetails.getAuthorities()).thenReturn(java.util.Collections.emptyList());
 
@@ -198,10 +199,11 @@ class JwtAuthenticationFilterTest {
         String username = "tenant123:user@example.com";
         String authHeader = "Bearer " + jwt;
 
-        doReturn(authHeader).when(request).getHeader("Authorization");
-        doReturn(username).when(jwtService).extractUsername(jwt);
-        doReturn(userDetails).when(userDetailsService).loadUserByUsername(username);
-        doReturn(false).when(jwtService).validateToken(jwt, username);
+        when(request.getHeader("Authorization")).thenReturn(authHeader);
+        when(jwtService.extractUsername(jwt)).thenReturn(username);
+        when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+        when(userDetails.getUsername()).thenReturn(username);
+        when(jwtService.validateToken(jwt, username)).thenReturn(false);
 
         // When
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
@@ -248,6 +250,7 @@ class JwtAuthenticationFilterTest {
         when(request.getHeader("Authorization")).thenReturn(authHeader);
         when(jwtService.extractUsername(jwt)).thenReturn(username);
         when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+        when(userDetails.getUsername()).thenReturn(username);
         when(jwtService.validateToken(jwt, username)).thenReturn(true);
         when(userDetails.getAuthorities()).thenReturn(authorities);
 

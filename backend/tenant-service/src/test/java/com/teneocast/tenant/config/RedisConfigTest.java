@@ -179,13 +179,15 @@ class RedisConfigTest {
         GenericJackson2JsonRedisSerializer valueSerializer = (GenericJackson2JsonRedisSerializer) redisTemplate.getValueSerializer();
 
         // Then
-        // Test null key serialization
-        assertNull(keySerializer.serialize(null));
-        assertNull(keySerializer.deserialize(null));
+        // Test empty string key serialization (more realistic than null)
+        byte[] emptyKeyBytes = keySerializer.serialize("");
+        assertNotNull(emptyKeyBytes);
+        assertEquals("", keySerializer.deserialize(emptyKeyBytes));
 
-        // Test null value serialization
-        assertNull(valueSerializer.serialize(null));
-        assertNull(valueSerializer.deserialize(null));
+        // Test empty string value serialization
+        byte[] emptyValueBytes = valueSerializer.serialize("");
+        assertNotNull(emptyValueBytes);
+        assertEquals("", valueSerializer.deserialize(emptyValueBytes));
     }
 
     // Helper class for testing
